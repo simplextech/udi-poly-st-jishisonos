@@ -18,33 +18,18 @@
     </cmds>
   </nodedef>
 
-  <!-- Virtual node - dimmer -->
-  <nodedef id="VNODE_DIMMER" nls="VN">
-    <sts>
-      <st id="ST" editor="PERCENT"/>
-    </sts>
-    <cmds>
-      <sends>
-        <cmd id="DON"/>
-        <cmd id="DOF"/>
-      </sends>
-      <accepts>
-        <cmd id="DON">
-          <p id="" editor="PERCENT" optional="T"/>
-        </cmd>
-        <cmd id="DOF"/>
-        <cmd id="QUERY"/>
-      </accepts>
-    </cmds>
-  </nodedef>
-
-  <nodeDef id="GROUP" nls="GROUP">
+  <nodeDef id="SONOS_SPEAKER" nls="SPEAKER">
     <editors />
     <sts>
         <st id="ST" editor="PSTATUS" />
         <st id="SVOL" editor="SVOL" />
         <st id="GV0" editor="bool" />  <!-- Mute/unMute -->
         <st id="GV1" editor="bool" />  <!-- Shuffle -->
+        <st id="GV2" editor="bool" />  <!-- Bass -->
+        <st id="GV3" editor="bool" />  <!-- Treble -->
+        <st id="GV4" editor="bool" />  <!-- Coordinator -->
+        <st id="GV5" editor="_56_0" />  <!-- Members -->
+
     </sts>
     <cmds>
         <sends />
@@ -58,9 +43,11 @@
             <cmd id="FAV">
                 <p id="" editor="PFAV" init="FAV" />
             </cmd>
+            <cmd id="SAYTTS">
+                <p id="" editor="SAYTTS" init="SAYTTS" />
+            </cmd>
             <cmd id="PLAY" />
             <cmd id="PAUSE" />
-<!--            <cmd id="STOP" />-->
             <cmd id="PREVIOUS" />
             <cmd id="NEXT" />
             <cmd id="MUTE" />
