@@ -1,0 +1,74 @@
+<!-- Version 0.0.1 -->
+<nodeDefs>
+
+  <!-- Node server node - KEEP THIS. This will create a nodeserver node showing if the node server is active or not -->
+  <nodedef id="CONTROLLER" nls="CONTROLLER">
+    <sts>
+      <st id="ST" editor="CONTROLLER"/>
+    </sts>
+    <cmds>
+      <sends/>
+      <accepts>
+        <cmd id="DISCOVER"/>
+        <cmd id="CREATE_NEW"/>
+        <cmd id="UPDATE_PROFILE"/>
+        <cmd id="REMOVE_NOTICES"/>
+        <cmd id="QUERY"/>
+      </accepts>
+    </cmds>
+  </nodedef>
+
+  <!-- Virtual node - dimmer -->
+  <nodedef id="VNODE_DIMMER" nls="VN">
+    <sts>
+      <st id="ST" editor="PERCENT"/>
+    </sts>
+    <cmds>
+      <sends>
+        <cmd id="DON"/>
+        <cmd id="DOF"/>
+      </sends>
+      <accepts>
+        <cmd id="DON">
+          <p id="" editor="PERCENT" optional="T"/>
+        </cmd>
+        <cmd id="DOF"/>
+        <cmd id="QUERY"/>
+      </accepts>
+    </cmds>
+  </nodedef>
+
+  <nodeDef id="GROUP" nls="GROUP">
+    <editors />
+    <sts>
+        <st id="ST" editor="PSTATUS" />
+        <st id="SVOL" editor="SVOL" />
+        <st id="GV0" editor="bool" />  <!-- Mute/unMute -->
+        <st id="GV1" editor="bool" />  <!-- Shuffle -->
+    </sts>
+    <cmds>
+        <sends />
+        <accepts>
+            <cmd id="SVOL">
+                <p id="" editor="SVOL" init="SVOL" />
+            </cmd>
+            <cmd id="PLAYLST">
+                <p id="" editor="PLIST" init="PLAYLST" />
+            </cmd>
+            <cmd id="FAV">
+                <p id="" editor="PFAV" init="FAV" />
+            </cmd>
+            <cmd id="PLAY" />
+            <cmd id="PAUSE" />
+<!--            <cmd id="STOP" />-->
+            <cmd id="PREVIOUS" />
+            <cmd id="NEXT" />
+            <cmd id="MUTE" />
+            <cmd id="UNMUTE" />
+            <cmd id="SHUFFLEON" />
+            <cmd id="SHUFFLEOFF" />
+        </accepts>
+    </cmds>
+    </nodeDef>
+
+</nodeDefs>
