@@ -25,8 +25,8 @@
         <st id="SVOL" editor="SVOL" />
         <st id="GV0" editor="bool" />  <!-- Mute/unMute -->
         <st id="GV1" editor="bool" />  <!-- Shuffle -->
-        <st id="GV2" editor="bool" />  <!-- Bass -->
-        <st id="GV3" editor="bool" />  <!-- Treble -->
+        <st id="GV2" editor="EQ" />  <!-- Bass -->
+        <st id="GV3" editor="EQ" />  <!-- Treble -->
         <st id="GV4" editor="bool" />  <!-- Coordinator -->
         <st id="GV5" editor="_56_0" />  <!-- Members -->
 
