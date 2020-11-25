@@ -42,8 +42,8 @@ module.exports = function(Polyglot) {
         SVOL: {value: '0', uom: 51},
         GV0: {value: '0', uom: 2}, // Mute
         GV1: {value: '0', uom: 2}, // Shuffle
-        GV2: {value: '0', uom: 2}, // Bass
-        GV3: {value: '0', uom: 2}, // Treble
+        GV2: {value: '0', uom: 56}, // Bass
+        GV3: {value: '0', uom: 56}, // Treble
         GV4: {value: '0', uom: 2}, // Coordinator
         GV5: {value: '0', uom: 56}, // Members
       };
