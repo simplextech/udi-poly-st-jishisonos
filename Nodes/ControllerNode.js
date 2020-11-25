@@ -68,12 +68,16 @@ module.exports = function(Polyglot) {
 
     }
 
-    sonosUpdate(type, data) {
+    sonosUpdate(type, data) {    
       logger.info('Update Received: ' + type);
 
       if (type == 'volume-change') {
-        logger.info('UUID: %s - Room: %s - New Volume: %s', data.uuid, data.roomName, data.newVolume);
         // logger.info('Volume Change: %j', data);
+        logger.info('UUID: %s - Room: %s - New Volume: %s', data.uuid, data.roomName, data.newVolume);
+        let _address = data.uuid.substring(12, 19);
+        let address = _address.toLowerCase();
+        let node = this.polyInterface.getNode(address);
+        node.setDriver('SVOL', data.newVolume, true)
       }
 
       if (type == 'transport-state') {
