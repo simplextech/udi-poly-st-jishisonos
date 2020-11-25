@@ -6,5 +6,20 @@
     <range uom="51" subset="0-100" />
   </editor>
 
+  <editor id="PSTATUS">
+        <range uom="25" subset="0-4" nls="PLAY_MODE" />
+  </editor>
+  
+  <editor id="PLIST">
+        <range uom="25" subset="0-50" nls="PLAY_LIST" />
+  </editor>
 
+  <editor id="PFAV">
+      <range uom="25" subset="0-50" nls="FAVORITE" />
+  </editor>
+
+  <editor id="SAYTTS">
+      <range uom="25" subset="1-5" nls="SAY_TTS" />
+  </editor>
+  
 </editors>
