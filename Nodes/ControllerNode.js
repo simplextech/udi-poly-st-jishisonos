@@ -21,8 +21,8 @@ module.exports = function(Polyglot) {
 
   // In this example, we also need to have our custom node because we create
   // nodes from this controller. See onCreateNew
-  const MyNode = require('./MyNode.js')(Polyglot);
-  
+  const SonosSpeaker = require('./SonosSpeaker.js')(Polyglot);
+
 
   class Controller extends Polyglot.Node {
     // polyInterface: handle to the interface
@@ -92,27 +92,6 @@ module.exports = function(Polyglot) {
     async onCreateNew() {
       const prefix = 'node';
       const nodes = this.polyInterface.getNodes();
-
-      // Finds the first available address and creates a node.
-      for (let seq = 0; seq < 999; seq++) {
-        // address will be <prefix><seq>
-        const address = prefix + seq.toString().padStart(3, '0');
-
-        if (!nodes[address]) {
-          // ISY Address will be n<profileNum>_<prefix><seq>
-          // name will be <prefix><seq>
-          try {
-            const result = await this.polyInterface.addNode(
-              new MyNode(this.polyInterface, this.address, address, address)
-            );
-
-            logger.info('Add node worked: %s', result);
-          } catch (err) {
-            logger.errorStack(err, 'Add node failed:');
-          }
-          break;
-        }
-      }
     }
 
     // Here you could discover devices from a 3rd party API
@@ -129,11 +108,10 @@ module.exports = function(Polyglot) {
         let address = _address.toLowerCase();
         let name = zones[i].members[0].roomName;
         
-        // logger.info('Zone: ' + '[' + i + '] ' + name + ' ' + 'Address: ' + address);
         logger.info('Zone: [%s] %s - Address: %s', i, name, address);
         try {
           const result = await this.polyInterface.addNode(
-            new MyNode(this.polyInterface, this.address, address, name)
+            new SonosSpeaker(this.polyInterface, this.address, address, name)
           );
           logger.info('Add node worked: %s', result);
         } catch (err) {
