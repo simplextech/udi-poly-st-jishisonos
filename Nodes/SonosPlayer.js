@@ -20,6 +20,8 @@ module.exports = function(Polyglot) {
     constructor(polyInterface, primary, address, name) {
       super(nodeDefId, polyInterface, primary, address, name);
 
+      this.JishiAPI = require('../lib/JishiAPI.js')(Polyglot, polyInterface);
+
       // PGC supports setting the node hint when creating a node
       // REF: https://github.com/UniversalDevicesInc/hints
       // Must be a string in this format
@@ -29,10 +31,25 @@ module.exports = function(Polyglot) {
       // Commands that this node can handle.
       // Should match the 'accepts' section of the nodedef.
       this.commands = {
-        DON: this.onDON,
-        DOF: this.onDOF,
+        // DON: this.onDON,
+        // DOF: this.onDOF,
         SVOL: this.playerVolume,
         GSVOL: this.groupVolume,
+        PMUTE: this.playerMute,
+        GMUTE: this.groupMute,
+        BASS: this.playerBass,
+        TREBLE: this.playerTreble,
+        REPEAT: this.playerRepeat,
+        SHUFFLE: this.playerShuffle,
+        CROSSFADE: this.playerCrossfade,
+        PLAYLST: this.playlist,
+        FAV: this.favorite,
+        SAY: this.say,
+        CLIP: this.clip,
+        PLAY: this.play,
+        PAUSE: this.pause,
+        NEXT: this.next,
+        PREVIOUS: this.previous,
         // You can use the query function from the base class directly
         QUERY: this.query,
       };
@@ -56,30 +73,82 @@ module.exports = function(Polyglot) {
     }
 
     playerVolume(message) {
-
+      this.JishiAPI.volume(this.name, message.value);
     }
     
     groupVolume(message) {
-
+      this.JishiAPI.groupVolume(this.name, message.value);
+      this.setDriver('GV1', message.value, true, true)
     }
 
-    play(message) {
-
+    playerMute(message) {
+      if (message.value == 1) {
+        this.JishiAPI.playerMute(this.name);
+        this.setDriver('GV2', 1, true, true);
+      } else {
+        this.JishiAPI.playerUnmute(this.name);
+        this.setDriver('GV2', 0, true, true);
+      }
     }
 
-    onDON(message) {
-      logger.info('DON (%s): %s',
-        this.address,
-        message.value ? message.value : 'No value');
-
-      // setDrivers accepts string or number (message.value is a string)
-      this.setDriver('ST', message.value ? message.value : '100');
+    groupMute(message) {
+      if (message.value == 1) {
+        this.JishiAPI.groupMute(this.name);
+        this.setDriver('GV3', 1, true, true);
+      } else {
+        this.JishiAPI.groupUnmute(this.name);
+        this.setDriver('GV3', 0, true, true);
+      }
     }
 
-    onDOF() {
-      logger.info('DOF (%s)', this.address);
-      this.setDriver('ST', '0');
+    play() {
+      this.JishiAPI.play(this.name);
     }
+
+    pause() {
+      this.JishiAPI.pause(this.name);
+    }
+
+    next() {
+      this.JishiAPI.next(this.name);
+    }
+
+    previous() {
+      this.JishiAPI.previous(this.name);
+    }
+
+    playerBass(message) {
+      this.JishiAPI.playerBass(this.name, message.value);
+      this.setDriver('GV7', message.value, true, true);
+    }
+
+    playerTreble(message) {
+      this.JishiAPI.playerTreble(this.name, message.value);
+      this.setDriver('GV8', message.value, true, true);
+    }
+
+    playerRepeat(message) {
+      if (message.value == 1) {
+        this.JishiAPI.playerRepeat(this.name, 1);
+      } else {
+        this.JishiAPI.playerRepeat(this.name, 0);
+      }
+    }
+
+    // onDON(message) {
+    //   logger.info('DON (%s): %s',
+    //     this.address,
+    //     message.value ? message.value : 'No value');
+
+    //   // setDrivers accepts string or number (message.value is a string)
+    //   this.setDriver('ST', message.value ? message.value : '100');
+    // }
+
+    // onDOF() {
+    //   logger.info('DOF (%s)', this.address);
+    //   this.setDriver('ST', '0');
+    // }
+
   };
 
   // Required so that the interface can find this Node class using the nodeDefId
