@@ -27,7 +27,7 @@
         <st id="GV1" editor="bool" />  <!-- Shuffle -->
         <st id="GV2" editor="EQ" />  <!-- Bass -->
         <st id="GV3" editor="EQ" />  <!-- Treble -->
-        <st id="GV4" editor="bool" />  <!-- Coordinator -->
+        <st id="GV4" editor="bool" /> <!-- Coordinator -->
         <st id="GV5" editor="_56_0" />  <!-- Members -->
 
     </sts>

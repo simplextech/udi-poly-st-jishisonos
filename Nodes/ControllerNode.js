@@ -133,7 +133,51 @@ module.exports = function(Polyglot) {
       }
 
       if (type == 'topology-change') {
-        logger.info('Topology Change: %j', data);
+        // logger.info('Topology Change: %j', data);
+
+        for (var i = 0; i < data.length; i++) {
+          try {
+            let _address = data[i].uuid.substring(12, 19);
+            let address = _address.toLowerCase();
+            let node = this.polyInterface.getNode(address);
+
+            logger.info('Topology Data: %j', data[i].coordinator);
+            let topo = data[i].coordinator;
+            logger.info('Topo UUID: %s', topo.uuid);
+            logger.info('Topo Coordinator: %j', topo.coordinator);
+
+            // logger.info('Members: %s', data[i].members.length);
+            // let members = data[i].members;
+
+            // for (let m = 0; m < data[i].members.length; m++) {
+            //   logger.info('Player: %s', data[i].members[m].uuid);
+            //   logger.info('Coordinator: %s', data[i].members[m]['coordinator']);
+            //   logger.info('Room: %s', data[i].members[m].roomName);
+
+            // }
+
+            // logger.info('Player: %s', data[i].members.uuid);
+            // logger.info('Coordinator: %s', data[i].members.coordinator);
+            // logger.info('Coordinator uuid: %s', data[i].coordinator.uuid);
+            // logger.info('Coordinator Coordinator: %s', data[i].coordinator.coordinator);
+            // logger.info('Coordinator Members: %j', data[i].members);
+
+            // let coordinator = data[i].coordinator.uuid;
+            // if (data[i].uuid == coordinator) {
+            //   node.setDriver('GV4', 1, true, true);
+            // } else {
+            //   node.setDriver('GV4', 0, true, true);
+            // }
+
+            
+            // node.setDriver('GV4', coordinator, true, true);
+            node.setDriver('GV5', data[i].members.length, true, true);
+          }
+          catch (error) {
+            logger.error('Topology Error: ', error);
+          }
+        }
+
       }
 
     }
