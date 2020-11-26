@@ -68,12 +68,13 @@ module.exports = function(Polyglot) {
 
     }
 
-    sonosUpdate(type, data) {    
+    sonosUpdate(type, data) {
       logger.info('Update Received: ' + type);
 
       if (type == 'volume-change') {
         // logger.info('Volume Change: %j', data);
         logger.info('UUID: %s - Room: %s - New Volume: %s', data.uuid, data.roomName, data.newVolume);
+
         let _address = data.uuid.substring(12, 19);
         let address = _address.toLowerCase();
         let node = this.polyInterface.getNode(address);
@@ -83,22 +84,7 @@ module.exports = function(Polyglot) {
       if (type == 'transport-state') {
         // logger.info('Transport State: %j', data);
         logger.info('UUID: %s - Room: %s - %s', data.uuid, data.roomName, data.state.playbackState);
-        // logger.info('Volume: %s - Mute: %s - Shuffle: %s - Repeat: %s - EQ Bass: %s - EQ Treble: %s', 
-        //   data.state.volume, 
-        //   data.state.mute, 
-        //   data.state.playMode.shuffle, 
-        //   data.state.playmode.repeat, 
-        //   data.state.equalizer.bass, 
-        //   data.state.equalizer.treble);
-        // logger.info('Shuffle: ' + data.state.playMode.shuffle);
-        // logger.info('Repeat: ' + data.state.playMode.repeat);
-
-        // PLAY_MODE-0 = N/A
-        // PLAY_MODE-1 = Playing
-        // PLAY_MODE-2 = Transitioning
-        // PLAY_MODE-3 = Paused
-        // PLAY_MODE-4 = Stopped
-
+      
         let playbackState = 0;
         switch(data.state.playbackState) {
           case 'PLAYING':
@@ -119,26 +105,25 @@ module.exports = function(Polyglot) {
         }
 
         let setMute = 0;
-        if (data.state.mute == true) {
+        if (data.state.mute === true) {
           setMute = 1
         }
 
         let setShuffle = 0;
-        if (data.state.playMode.shuffle == true) {
+        if (data.state.playMode.shuffle === true) {
           setShuffle = 1;
         }
-
 
         let _address = data.uuid.substring(12, 19);
         let address = _address.toLowerCase();
         let node = this.polyInterface.getNode(address);
 
-        logger.info('----------------Address: ' + node.address);
-        logger.info('----------------Playbackstate: ' + playbackState);
-        logger.info('----------------Mute: ' + setMute);
-        logger.info('----------------Shuffle: ' + setShuffle);
-        logger.info('----------------Bass: ' + data.state.equalizer.bass);
-        logger.info('----------------Treble: ' + data.state.equalizer.treble);
+        // logger.info('----------------Address: ' + node.address);
+        // logger.info('----------------Playbackstate: ' + playbackState);
+        // logger.info('----------------Mute: ' + setMute);
+        // logger.info('----------------Shuffle: ' + setShuffle);
+        // logger.info('----------------Bass: ' + data.state.equalizer.bass);
+        // logger.info('----------------Treble: ' + data.state.equalizer.treble);
 
         node.setDriver('ST', playbackState, true, true);
         node.setDriver('GV0', setMute, true, true);
@@ -148,7 +133,7 @@ module.exports = function(Polyglot) {
       }
 
       if (type == 'topology-change') {
-        // logger.info('Topology Change: %j', data);
+        logger.info('Topology Change: %j', data);
       }
 
     }
