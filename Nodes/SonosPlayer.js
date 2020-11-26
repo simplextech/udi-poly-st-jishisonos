@@ -143,6 +143,14 @@ module.exports = function(Polyglot) {
       }
     }
 
+    playerCrossfade(message) {
+      if (message.value == 1) {
+        this.JishiAPI.playerCrossfade(this.name, 1);
+      } else {
+        this.JishiAPI.playerCrossfade(this.name, 0);
+      }
+    }
+
     // onDON(message) {
     //   logger.info('DON (%s): %s',
     //     this.address,
