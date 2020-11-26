@@ -94,7 +94,7 @@ module.exports = function(Polyglot) {
           case 'TRANSITIONING':
             playbackState = 2;
             break;
-          case 'PAUSED':
+          case 'PAUSED_PLAYBACK':
             playbackState = 3;
             break;
           case 'STOPPED':
@@ -108,6 +108,11 @@ module.exports = function(Polyglot) {
         let setMute = 0;
         if (data.state.mute === true) {
           setMute = 1
+        }
+
+        let setGroupMute = 0;
+        if (data.groupState.mute == true) {
+          setGroupMute = 1;
         }
 
         let setRepeat = 0;
@@ -125,15 +130,20 @@ module.exports = function(Polyglot) {
           setCrossfade = 1;
         }
 
+        logger.info('Group Volume: ' + data.groupState.volume);
+        let groupVolume = data.groupState.volume;
+
         let _address = data.uuid.substring(12, 19);
         let address = _address.toLowerCase();
         let node = this.polyInterface.getNode(address);
 
         node.setDriver('ST', playbackState, true, true);
+        node.setDriver('GV1', groupVolume, true, true);
         node.setDriver('GV2', setMute, true, true);
-        node.setDriver('GV5', setRepeat, true, true)
+        node.setDriver('GV3', setGroupMute, true, true);
+        node.setDriver('GV4', setRepeat, true, true)
         node.setDriver('GV5', setShuffle, true, true)
-        node.setDriver('GV5', setCrossfade, true, true)
+        node.setDriver('GV6', setCrossfade, true, true)
         node.setDriver('GV7', data.state.equalizer.bass, true, true)
         node.setDriver('GV8', data.state.equalizer.treble, true, true)
       
@@ -147,7 +157,7 @@ module.exports = function(Polyglot) {
           let address = _address.toLowerCase();
           let node = this.polyInterface.getNode(address);
 
-          node.setDriver('GV5', data[i].members.length, true, true);
+          node.setDriver('GV9', data[i].members.length, true, true);
         }
       }
     }
