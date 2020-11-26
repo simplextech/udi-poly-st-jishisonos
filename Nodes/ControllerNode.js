@@ -1,6 +1,8 @@
 'use strict';
 
 const fs = require('fs');
+const util = require('util');
+const flatted = require('flatted');
 
 // The controller node is a regular ISY node. It must be the first node created
 // by the node server. It has an ST status showing the nodeserver status, and
@@ -21,8 +23,8 @@ module.exports = function(Polyglot) {
 
   // In this example, we also need to have our custom node because we create
   // nodes from this controller. See onCreateNew
-  const MyNode = require('./MyNode.js')(Polyglot);
-  
+  const SonosPlayer = require('./SonosPlayer.js')(Polyglot);
+
 
   class Controller extends Polyglot.Node {
     // polyInterface: handle to the interface
@@ -51,9 +53,8 @@ module.exports = function(Polyglot) {
       };
 
       this.isController = true;
-
       this.discovery = discovery;
-
+      
       discovery.on('transport-state', player => {
         this.sonosUpdate('transport-state', player);
       });
@@ -72,47 +73,88 @@ module.exports = function(Polyglot) {
       logger.info('Update Received: ' + type);
 
       if (type == 'volume-change') {
-        logger.info('UUID: %s - Room: %s - New Volume: %s', data.uuid, data.roomName, data.newVolume);
         // logger.info('Volume Change: %j', data);
+        logger.info('UUID: %s - Room: %s - New Volume: %s', data.uuid, data.roomName, data.newVolume);
+
+        let _address = data.uuid.substring(12, 19);
+        let address = _address.toLowerCase();
+        let node = this.polyInterface.getNode(address);
+        node.setDriver('GV0', data.newVolume, true, true)
       }
 
       if (type == 'transport-state') {
         // logger.info('Transport State: %j', data);
         logger.info('UUID: %s - Room: %s - %s', data.uuid, data.roomName, data.state.playbackState);
-        logger.info('Volume: %s - Mute: %s - EQ Bass: %s - EQ Treble: %s',
-        data.state.volume, data.state.mute, data.state.equalizer.bass, data.state.equalizer.treble)
+      
+        let playbackState = 0;
+        switch(data.state.playbackState) {
+          case 'PLAYING':
+            playbackState = 1;
+            break;
+          case 'TRANSITIONING':
+            playbackState = 2;
+            break;
+          case 'PAUSED':
+            playbackState = 3;
+            break;
+          case 'STOPPED':
+            playbackState = 4;
+            break;
+          default:
+            logger.info('No PlayBack State');
+            playbackState = 0;
+        }
+
+        let setMute = 0;
+        if (data.state.mute === true) {
+          setMute = 1
+        }
+
+        let setRepeat = 0;
+        if (data.state.playMode.repeat === true) {
+          setRepeat = 1;
+        }
+
+        let setShuffle = 0;
+        if (data.state.playMode.shuffle === true) {
+          setShuffle = 1;
+        }
+
+        let setCrossfade = 0;
+        if (data.state.playMode.crossfade === true) {
+          setCrossfade = 1;
+        }
+
+        let _address = data.uuid.substring(12, 19);
+        let address = _address.toLowerCase();
+        let node = this.polyInterface.getNode(address);
+
+        node.setDriver('ST', playbackState, true, true);
+        node.setDriver('GV2', setMute, true, true);
+        node.setDriver('GV5', setRepeat, true, true)
+        node.setDriver('GV5', setShuffle, true, true)
+        node.setDriver('GV5', setCrossfade, true, true)
+        node.setDriver('GV7', data.state.equalizer.bass, true, true)
+        node.setDriver('GV8', data.state.equalizer.treble, true, true)
+      
       }
 
       if (type == 'topology-change') {
-        logger.info('Topology Change: %j', data);
-      }
+        // logger.info('Topology Change: %j', data);
 
+        for (var i = 0; i < data.length; i++) {           
+          let _address = data[i].uuid.substring(12, 19);
+          let address = _address.toLowerCase();
+          let node = this.polyInterface.getNode(address);
+
+          node.setDriver('GV5', data[i].members.length, true, true);
+        }
+      }
     }
 
     async onCreateNew() {
       const prefix = 'node';
       const nodes = this.polyInterface.getNodes();
-
-      // Finds the first available address and creates a node.
-      for (let seq = 0; seq < 999; seq++) {
-        // address will be <prefix><seq>
-        const address = prefix + seq.toString().padStart(3, '0');
-
-        if (!nodes[address]) {
-          // ISY Address will be n<profileNum>_<prefix><seq>
-          // name will be <prefix><seq>
-          try {
-            const result = await this.polyInterface.addNode(
-              new MyNode(this.polyInterface, this.address, address, address)
-            );
-
-            logger.info('Add node worked: %s', result);
-          } catch (err) {
-            logger.errorStack(err, 'Add node failed:');
-          }
-          break;
-        }
-      }
     }
 
     // Here you could discover devices from a 3rd party API
@@ -121,7 +163,7 @@ module.exports = function(Polyglot) {
       logger.info('Discovering');
       let zones = await this.JishiAPI.zones();
       // logger.info('Zones: %j', zones);
-      logger.info('Zones: ' + zones.length);
+      // logger.info('Zones: %s', zones.length);
       
       for (var i = 0; i < zones.length; i++) {
         let _uuid = zones[i].uuid;
@@ -129,11 +171,10 @@ module.exports = function(Polyglot) {
         let address = _address.toLowerCase();
         let name = zones[i].members[0].roomName;
         
-        // logger.info('Zone: ' + '[' + i + '] ' + name + ' ' + 'Address: ' + address);
         logger.info('Zone: [%s] %s - Address: %s', i, name, address);
         try {
           const result = await this.polyInterface.addNode(
-            new MyNode(this.polyInterface, this.address, address, name)
+            new SonosPlayer(this.polyInterface, this.address, address, name)
           );
           logger.info('Add node worked: %s', result);
         } catch (err) {

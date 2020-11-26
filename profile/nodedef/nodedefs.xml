@@ -18,39 +18,51 @@
     </cmds>
   </nodedef>
 
-  <!-- Virtual node - dimmer -->
-  <nodedef id="VNODE_DIMMER" nls="VN">
-    <sts>
-      <st id="ST" editor="PERCENT"/>
-    </sts>
-    <cmds>
-      <sends>
-        <cmd id="DON"/>
-        <cmd id="DOF"/>
-      </sends>
-      <accepts>
-        <cmd id="DON">
-          <p id="" editor="PERCENT" optional="T"/>
-        </cmd>
-        <cmd id="DOF"/>
-        <cmd id="QUERY"/>
-      </accepts>
-    </cmds>
-  </nodedef>
-
-  <nodeDef id="GROUP" nls="GROUP">
+  <nodeDef id="SONOS_PLAYER" nls="PLAYER">
     <editors />
     <sts>
         <st id="ST" editor="PSTATUS" />
-        <st id="SVOL" editor="SVOL" />
-        <st id="GV0" editor="bool" />  <!-- Mute/unMute -->
-        <st id="GV1" editor="bool" />  <!-- Shuffle -->
+        <st id="GV0" editor="SVOL" /> <!-- Player Volume -->
+        <st id="GV1" editor="SVOL" /> <!-- Group Volume -->
+        <st id="GV2" editor="bool" />  <!-- Player Mute/unMute -->
+        <st id="GV3" editor="bool" />  <!-- Group Mute/unMute -->
+        <st id="GV4" editor="bool" />  <!-- Repeat -->
+        <st id="GV5" editor="bool" />  <!-- Shuffle -->
+        <st id="GV6" editor="bool" />  <!-- Crossfade -->
+        <st id="GV7" editor="EQ" />  <!-- Bass -->
+        <st id="GV8" editor="EQ" />  <!-- Treble -->
+        <st id="GV9" editor="_56_0" />  <!-- Members -->
+        <!-- <st id="GV10" editor="bool" /> --> <!-- Coordinator -->
     </sts>
     <cmds>
         <sends />
         <accepts>
             <cmd id="SVOL">
-                <p id="" editor="SVOL" init="SVOL" />
+                <p id="" editor="SVOL" init="GV0" />
+            </cmd>
+            <cmd id="PMUTE">
+                <p id="" editor="BOOL" init="GV2" />
+            </cmd>
+            <cmd id="GSVOL">
+                <p id="" editor="SVOL" init="GV1" />
+            </cmd>
+            <cmd id="GMUTE">
+                <p id="" editor="BOOL" init="GV3" />
+            </cmd>
+            <cmd id="BASS">
+                <p id="" editor="EQ" init="GV7" />
+            </cmd>
+            <cmd id="TREBLE">
+                <p id="" editor="EQ" init="GV8" />
+            </cmd>
+            <cmd id="REPEAT">
+                <p id="" editor="BOOL" init="GV4" />
+            </cmd>
+            <cmd id="SHUFFLE">
+                <p id="" editor="BOOL" init="GV5" />
+            </cmd>
+            <cmd id="CROSSFADE">
+                <p id="" editor="BOOL" init="GV6" />
             </cmd>
             <cmd id="PLAYLST">
                 <p id="" editor="PLIST" init="PLAYLST" />
@@ -58,15 +70,26 @@
             <cmd id="FAV">
                 <p id="" editor="PFAV" init="FAV" />
             </cmd>
+            <cmd id="SAY">
+                <p id="" editor="SAY" init="SAY" />
+            </cmd>
+            <cmd id="CLIP">
+                <p id="" editor="CLIP" init="CLIP" />
+            </cmd>
             <cmd id="PLAY" />
             <cmd id="PAUSE" />
-<!--            <cmd id="STOP" />-->
             <cmd id="PREVIOUS" />
             <cmd id="NEXT" />
-            <cmd id="MUTE" />
-            <cmd id="UNMUTE" />
-            <cmd id="SHUFFLEON" />
-            <cmd id="SHUFFLEOFF" />
+            <!-- <cmd id="PMUTE" /> -->
+            <!-- <cmd id="PUNMUTE" /> -->
+            <!-- <cmd id="GMUTE" /> -->
+            <!-- <cmd id="GUNMUTE" /> -->
+            <!-- <cmd id="REPEATON" /> -->
+            <!-- <cmd id="REPEATOFF" /> -->
+            <!-- <cmd id="SHUFFLEON" /> -->
+            <!-- <cmd id="SHUFFLEOFF" /> -->
+            <!-- <cmd id="CROSSFADEON" /> -->
+            <!-- <cmd id="CROSSFADEOFF" /> -->
         </accepts>
     </cmds>
     </nodeDef>
