@@ -77,18 +77,78 @@ module.exports = function(Polyglot) {
         let _address = data.uuid.substring(12, 19);
         let address = _address.toLowerCase();
         let node = this.polyInterface.getNode(address);
-        node.setDriver('SVOL', data.newVolume, true)
+        node.setDriver('SVOL', data.newVolume, true, true)
       }
 
       if (type == 'transport-state') {
         // logger.info('Transport State: %j', data);
         logger.info('UUID: %s - Room: %s - %s', data.uuid, data.roomName, data.state.playbackState);
-        logger.info('Volume: %s - Mute: %s - EQ Bass: %s - EQ Treble: %s',
-        data.state.volume, data.state.mute, data.state.equalizer.bass, data.state.equalizer.treble)
+        // logger.info('Volume: %s - Mute: %s - Shuffle: %s - Repeat: %s - EQ Bass: %s - EQ Treble: %s', 
+        //   data.state.volume, 
+        //   data.state.mute, 
+        //   data.state.playMode.shuffle, 
+        //   data.state.playmode.repeat, 
+        //   data.state.equalizer.bass, 
+        //   data.state.equalizer.treble);
+        // logger.info('Shuffle: ' + data.state.playMode.shuffle);
+        // logger.info('Repeat: ' + data.state.playMode.repeat);
+
+        // PLAY_MODE-0 = N/A
+        // PLAY_MODE-1 = Playing
+        // PLAY_MODE-2 = Transitioning
+        // PLAY_MODE-3 = Paused
+        // PLAY_MODE-4 = Stopped
+
+        let playbackState = 0;
+        switch(data.state.playbackState) {
+          case 'PLAYING':
+            playbackState = 1;
+            break;
+          case 'TRANSITIONING':
+            playbackState = 2;
+            break;
+          case 'PAUSED':
+            playbackState = 3;
+            break;
+          case 'STOPPED':
+            playbackState = 4;
+            break;
+          default:
+            logger.info('No PlayBack State');
+            playbackState = 0;
+        }
+
+        let setMute = 0;
+        if (data.state.mute == true) {
+          setMute = 1
+        }
+
+        let setShuffle = 0;
+        if (data.state.playMode.shuffle == true) {
+          setShuffle = 1;
+        }
+
+
+        let _address = data.uuid.substring(12, 19);
+        let address = _address.toLowerCase();
+        let node = this.polyInterface.getNode(address);
+
+        logger.info('----------------Address: ' + node.address);
+        logger.info('----------------Playbackstate: ' + playbackState);
+        logger.info('----------------Mute: ' + setMute);
+        logger.info('----------------Shuffle: ' + setShuffle);
+        logger.info('----------------Bass: ' + data.state.equalizer.bass);
+        logger.info('----------------Treble: ' + data.state.equalizer.treble);
+
+        node.setDriver('ST', playbackState, true, true);
+        node.setDriver('GV0', setMute, true, true);
+        node.setDriver('GV1', setShuffle, true, true)
+        node.setDriver('GV2', data.state.equalizer.bass, true, true)
+        node.setDriver('GV3', data.state.equalizer.treble, true, true)
       }
 
       if (type == 'topology-change') {
-        logger.info('Topology Change: %j', data);
+        // logger.info('Topology Change: %j', data);
       }
 
     }
