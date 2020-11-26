@@ -135,6 +135,14 @@ module.exports = function(Polyglot) {
       }
     }
 
+    playerShuffle(message) {
+      if (message.value == 1) {
+        this.JishiAPI.playerShuffle(this.name, 1);
+      } else {
+        this.JishiAPI.playerShuffle(this.name, 0);
+      }
+    }
+
     // onDON(message) {
     //   logger.info('DON (%s): %s',
     //     this.address,
