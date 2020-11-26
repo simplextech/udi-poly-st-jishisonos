@@ -46,10 +46,8 @@ module.exports = function(Polyglot) {
         QUERY: this.query,
       };
 
-      // Status that this controller node has.
-      // Should match the 'sts' section of the nodedef.
       this.drivers = {
-        ST: { value: '1', uom: 2 }, // uom 2 = Boolean. '1' is True.
+        ST: { value: '1', uom: 2 },
       };
 
       this.isController = true;
@@ -172,34 +170,71 @@ module.exports = function(Polyglot) {
 
       logger.info('Discovering');
       let zones = await this.JishiAPI.zones();
-      // logger.info('Zones: %j', zones);
-      // logger.info('Zones: %s', zones.length);
       
-      for (var i = 0; i < zones.length; i++) {
-        let _uuid = zones[i].uuid;
-        let _address = _uuid.substring(12, 19);
-        let address = _address.toLowerCase();
-        let name = zones[i].members[0].roomName;
-        
-        logger.info('Zone: [%s] %s - Address: %s', i, name, address);
-        try {
-          const result = await this.polyInterface.addNode(
+      for (var z = 0; z < zones.length; z++) {
+        logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
+
+        for (var m = 0; m < zones[z].members.length; m++) {
+          logger.info('Members UUID: %s, - Room: %s', zones[z].members[m].uuid, zones[z].members[m].roomName);
+          let address = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
+          let name = zones[z].members[m].roomName;
+
+          try {
+            const result = await this.polyInterface.addNode(
             new SonosPlayer(this.polyInterface, this.address, address, name)
-          );
-          logger.info('Add node worked: %s', result);
-        } catch (err) {
-          logger.errorStack(err, 'Add node failed:');
+            );
+            // logger.info('Add node worked: %s', result);
+          } catch (err) {
+            logger.errorStack(err, 'Add node failed:');
+          }
+
+          // logger.info('---------------' + process.cwd());
+          const nlsFile = 'profile/nls/en_US.txt';
+          let data = fs.readFileSync(nlsFile, 'utf-8');
+          let remove = 'ZONE-' + m + '.*';
+          let replace = 'ZONE-' + m + ' = ' + name;
+          let newData = data.replace(new RegExp(remove), replace);
+          fs.writeFileSync(nlsFile, newData, 'utf-8');
         }
-        
-        logger.info('---------------' + process.cwd());
-        const nlsFile = 'profile/nls/en_US.txt';
-        let data = fs.readFileSync(nlsFile, 'utf-8');
-        let remove = 'ZONE-' + i + '.*';
-        let replace = 'ZONE-' + i + ' = ' + name;
-        let newData = data.replace(new RegExp(remove), replace);
-        fs.writeFileSync(nlsFile, newData, 'utf-8');
       }
     }
+
+      
+
+      // for (let z in zones) {
+      //   logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
+
+      //   for (let m in zones[z].members) {
+      //     logger.info('Members UUID: %s, - Room: %s', zones[z].members[m].uuid, zones[z].members[m].roomName);
+      //   }
+      // }
+
+    //   for (var i = 0; i < zones.length; i++) {
+    //     let _uuid = zones[i].uuid;
+    //     let _address = _uuid.substring(12, 19);
+    //     let address = _address.toLowerCase();
+    //     let name = zones[i].members[0].roomName;
+        
+    //     logger.info('Zone: [%s] %s - Address: %s', i, name, address);
+    //     try {
+    //       const result = await this.polyInterface.addNode(
+    //         new SonosPlayer(this.polyInterface, this.address, address, name)
+    //       );
+    //       // logger.info('Add node worked: %s', result);
+    //     } catch (err) {
+    //       logger.errorStack(err, 'Add node failed:');
+    //     }
+        
+    //     logger.info('---------------' + process.cwd());
+    //     const nlsFile = 'profile/nls/en_US.txt';
+    //     let data = fs.readFileSync(nlsFile, 'utf-8');
+    //     let remove = 'ZONE-' + i + '.*';
+    //     let replace = 'ZONE-' + i + ' = ' + name;
+    //     let newData = data.replace(new RegExp(remove), replace);
+    //     fs.writeFileSync(nlsFile, newData, 'utf-8');
+    //   }
+
+    // }
 
     // Sends the profile files to ISY
     onUpdateProfile() {
