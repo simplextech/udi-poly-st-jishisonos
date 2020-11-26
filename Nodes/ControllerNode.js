@@ -1,6 +1,8 @@
 'use strict';
 
 const fs = require('fs');
+const util = require('util');
+const flatted = require('flatted');
 
 // The controller node is a regular ISY node. It must be the first node created
 // by the node server. It has an ST status showing the nodeserver status, and
@@ -21,7 +23,7 @@ module.exports = function(Polyglot) {
 
   // In this example, we also need to have our custom node because we create
   // nodes from this controller. See onCreateNew
-  const SonosSpeaker = require('./SonosSpeaker.js')(Polyglot);
+  const SonosPlayer = require('./SonosPlayer.js')(Polyglot);
 
 
   class Controller extends Polyglot.Node {
@@ -51,9 +53,8 @@ module.exports = function(Polyglot) {
       };
 
       this.isController = true;
-
       this.discovery = discovery;
-
+      
       discovery.on('transport-state', player => {
         this.sonosUpdate('transport-state', player);
       });
@@ -78,7 +79,7 @@ module.exports = function(Polyglot) {
         let _address = data.uuid.substring(12, 19);
         let address = _address.toLowerCase();
         let node = this.polyInterface.getNode(address);
-        node.setDriver('SVOL', data.newVolume, true, true)
+        node.setDriver('GV0', data.newVolume, true, true)
       }
 
       if (type == 'transport-state') {
@@ -109,77 +110,46 @@ module.exports = function(Polyglot) {
           setMute = 1
         }
 
+        let setRepeat = 0;
+        if (data.state.playMode.repeat === true) {
+          setRepeat = 1;
+        }
+
         let setShuffle = 0;
         if (data.state.playMode.shuffle === true) {
           setShuffle = 1;
+        }
+
+        let setCrossfade = 0;
+        if (data.state.playMode.crossfade === true) {
+          setCrossfade = 1;
         }
 
         let _address = data.uuid.substring(12, 19);
         let address = _address.toLowerCase();
         let node = this.polyInterface.getNode(address);
 
-        // logger.info('----------------Address: ' + node.address);
-        // logger.info('----------------Playbackstate: ' + playbackState);
-        // logger.info('----------------Mute: ' + setMute);
-        // logger.info('----------------Shuffle: ' + setShuffle);
-        // logger.info('----------------Bass: ' + data.state.equalizer.bass);
-        // logger.info('----------------Treble: ' + data.state.equalizer.treble);
-
         node.setDriver('ST', playbackState, true, true);
-        node.setDriver('GV0', setMute, true, true);
-        node.setDriver('GV1', setShuffle, true, true)
-        node.setDriver('GV2', data.state.equalizer.bass, true, true)
-        node.setDriver('GV3', data.state.equalizer.treble, true, true)
+        node.setDriver('GV2', setMute, true, true);
+        node.setDriver('GV5', setRepeat, true, true)
+        node.setDriver('GV5', setShuffle, true, true)
+        node.setDriver('GV5', setCrossfade, true, true)
+        node.setDriver('GV7', data.state.equalizer.bass, true, true)
+        node.setDriver('GV8', data.state.equalizer.treble, true, true)
+      
       }
 
       if (type == 'topology-change') {
         // logger.info('Topology Change: %j', data);
 
-        for (var i = 0; i < data.length; i++) {
-          try {
-            let _address = data[i].uuid.substring(12, 19);
-            let address = _address.toLowerCase();
-            let node = this.polyInterface.getNode(address);
+        for (var i = 0; i < data.length; i++) {           
+          let _address = data[i].uuid.substring(12, 19);
+          let address = _address.toLowerCase();
+          let node = this.polyInterface.getNode(address);
 
-            logger.info('Topology Data: %j', data[i].coordinator);
-            let topo = data[i].coordinator;
-            logger.info('Topo UUID: %s', topo.uuid);
-            logger.info('Topo Coordinator: %j', topo.coordinator);
-
-            // logger.info('Members: %s', data[i].members.length);
-            // let members = data[i].members;
-
-            // for (let m = 0; m < data[i].members.length; m++) {
-            //   logger.info('Player: %s', data[i].members[m].uuid);
-            //   logger.info('Coordinator: %s', data[i].members[m]['coordinator']);
-            //   logger.info('Room: %s', data[i].members[m].roomName);
-
-            // }
-
-            // logger.info('Player: %s', data[i].members.uuid);
-            // logger.info('Coordinator: %s', data[i].members.coordinator);
-            // logger.info('Coordinator uuid: %s', data[i].coordinator.uuid);
-            // logger.info('Coordinator Coordinator: %s', data[i].coordinator.coordinator);
-            // logger.info('Coordinator Members: %j', data[i].members);
-
-            // let coordinator = data[i].coordinator.uuid;
-            // if (data[i].uuid == coordinator) {
-            //   node.setDriver('GV4', 1, true, true);
-            // } else {
-            //   node.setDriver('GV4', 0, true, true);
-            // }
-
-            
-            // node.setDriver('GV4', coordinator, true, true);
-            node.setDriver('GV5', data[i].members.length, true, true);
-          }
-          catch (error) {
-            logger.error('Topology Error: ', error);
-          }
+          node.setDriver('GV5', data[i].members.length, true, true);
         }
-
       }
-
     }
 
     async onCreateNew() {
@@ -193,7 +163,7 @@ module.exports = function(Polyglot) {
       logger.info('Discovering');
       let zones = await this.JishiAPI.zones();
       // logger.info('Zones: %j', zones);
-      logger.info('Zones: ' + zones.length);
+      // logger.info('Zones: %s', zones.length);
       
       for (var i = 0; i < zones.length; i++) {
         let _uuid = zones[i].uuid;
@@ -204,7 +174,7 @@ module.exports = function(Polyglot) {
         logger.info('Zone: [%s] %s - Address: %s', i, name, address);
         try {
           const result = await this.polyInterface.addNode(
-            new SonosSpeaker(this.polyInterface, this.address, address, name)
+            new SonosPlayer(this.polyInterface, this.address, address, name)
           );
           logger.info('Add node worked: %s', result);
         } catch (err) {

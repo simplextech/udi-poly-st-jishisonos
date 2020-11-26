@@ -24,7 +24,7 @@ const lock = new AsyncLock({ timeout: 500 });
 // Those are the node definitions that our nodeserver uses.
 // You will need to edit those files.
 const ControllerNode = require('./Nodes/ControllerNode.js')(Polyglot);
-const SonosSpeaker = require('./Nodes/SonosSpeaker.js')(Polyglot);
+const SonosPlayer = require('./Nodes/SonosPlayer.js')(Polyglot);
 
 // Names of our customParams
 const emailParam = 'User';
@@ -69,7 +69,7 @@ logger.info('Starting Node Server');
 
 // Create an instance of the Polyglot interface. We need pass all the node
 // classes that we will be using.
-const poly = new Polyglot.Interface([ControllerNode, SonosSpeaker]);
+const poly = new Polyglot.Interface([ControllerNode, SonosPlayer]);
 
 // Connected to MQTT, but config has not yet arrived.
 poly.on('mqttConnected', function() {
@@ -228,7 +228,7 @@ async function autoCreateController() {
       new ControllerNode(poly, 'controller', 'controller', 'ST-JishiSonos')
     );
   } catch (err) {
-    logger.error('Error creating controller node');
+    logger.error('Error creating controller node', err);
   }
 
   // Add a notice in the UI for 5 seconds

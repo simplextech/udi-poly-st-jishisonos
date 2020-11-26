@@ -1,9 +1,17 @@
 <!-- Version 0.0.1 -->
 <editors>
 
+  <editor id="BOOL">
+    <range uom="2" subset="0,1" />
+  </editor>
+
   <editor id="PERCENT">
     <!-- 51 is percentage -->
     <range uom="51" subset="0-100" />
+  </editor>
+
+  <editor id="SVOL">
+        <range uom="51" min="0" max="100" prec="0" />
   </editor>
 
   <editor id="EQ">
@@ -22,8 +30,12 @@
       <range uom="25" subset="0-50" nls="FAVORITE" />
   </editor>
 
-  <editor id="SAYTTS">
-      <range uom="25" subset="1-5" nls="SAY_TTS" />
+  <editor id="SAY">
+      <range uom="25" subset="1-20" nls="SAY" />
+  </editor>
+
+  <editor id="CLIP">
+      <range uom="25" subset="1-20" nls="CLIP" />
   </editor>
   
 </editors>
