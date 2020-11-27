@@ -179,8 +179,12 @@ poly.on('stop', async function() {
   await doPoll(true);
 
   // Tell Interface we are stopping (Our polling is now finished)
-  poly.stop();
-  process.exit();
+  try { 
+    poly.stop();
+    // process.exit();
+  } catch (error) {
+    logger.error('poly.stop() Failed: %s', error);
+  }
 });
 
 // Received a 'delete' message from Polyglot. This NodeServer is being removed
