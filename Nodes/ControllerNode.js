@@ -39,7 +39,8 @@ module.exports = function(Polyglot) {
       // Commands that this controller node can handle.
       // Should match the 'accepts' section of the nodedef.
       this.commands = {
-        CREATE_NEW: this.onCreateNew,
+        UPDATE_FAVORITES: this.updateFavorites,
+        UPDATE_PLAYLISTS: this.updatePlaylists,
         DISCOVER: this.onDiscover,
         UPDATE_PROFILE: this.onUpdateProfile,
         REMOVE_NOTICES: this.onRemoveNotices,
@@ -171,6 +172,9 @@ module.exports = function(Polyglot) {
     async onCreateNew() {
       const prefix = 'node';
       const nodes = this.polyInterface.getNodes();
+
+      this.updateFavorites();
+     
     }
 
     // Here you could discover devices from a 3rd party API
@@ -205,6 +209,76 @@ module.exports = function(Polyglot) {
           fs.writeFileSync(nlsFile, newData, 'utf-8');
         }
       }
+    }
+
+    removeLine(file, input) {
+      const workFile = file;
+      const search = input.toString();
+
+      let data = fs.readFileSync(workFile, 'utf-8');
+      let newData = data.replace(new RegExp(/${search}.*/gm), '');
+      fs.writeFileSync(workFile, 'utf-8');
+    }
+
+    async updatePlaylists() {
+      // logger.info('---------------' + process.cwd());
+
+      let playlists = await this.JishiAPI.playlists();
+      const nlsFile = 'profile/nls/en_US.txt';
+
+      let data = fs.readFileSync(nlsFile, 'utf-8');
+      let playData = data.replace(new RegExp(/PLAYLIST-.*/gm), '');
+      fs.writeFileSync(nlsFile +'-new', playData, 'utf-8');
+    }
+
+    async updateFavorites() {
+      let favorites = await this.JishiAPI.favorites();
+      const nlsFile = 'profile/nls/en_US.txt';
+      let cleanData = [];
+
+      try {
+        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const lines = data.split(/\r?\n/);
+        let re = /FAVORITE-.*/;
+
+        lines.forEach((line => {
+          if (!re.test(line)) {
+            cleanData.push(line);
+          }
+        }));
+
+      } catch (error) {
+        logger.error(error);
+      }
+
+      for (let f = 0; f < favorites.length; f++) {
+        logger.info('FAVORITE-' + f + ' = ' + favorites[f]);
+        let fav = 'FAVORITE-' + f + ' = ' + favorites[f];
+        cleanData.push(fav);
+      }
+
+      try {
+        fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
+      } catch (error) {
+        logger.error(error);
+      }
+
+    }
+
+    async updateClips() {
+      const nlsFile = 'profile/nls/en_US.txt';
+
+      let data = fs.readFileSync(nlsFile, 'utf-8');
+      let clipData = data.replace(new RegExp(/FAVORITE-.*/gm), '');
+      fs.writeFileSync(nlsFile +'-new', clipData, 'utf-8');
+    }
+
+    async updateSay() {
+      const nlsFile = 'profile/nls/en_US.txt';
+
+      let data = fs.readFileSync(nlsFile, 'utf-8');
+      let sayData = data.replace(new RegExp(/FAVORITE-.*/gm), '');
+      fs.writeFileSync(nlsFile +'-new', sayData, 'utf-8');
     }
 
     // Sends the profile files to ISY
