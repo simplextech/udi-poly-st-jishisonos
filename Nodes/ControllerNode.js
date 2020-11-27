@@ -221,14 +221,36 @@ module.exports = function(Polyglot) {
     }
 
     async updatePlaylists() {
-      // logger.info('---------------' + process.cwd());
-
       let playlists = await this.JishiAPI.playlists();
       const nlsFile = 'profile/nls/en_US.txt';
+      let cleanData = [];
 
-      let data = fs.readFileSync(nlsFile, 'utf-8');
-      let playData = data.replace(new RegExp(/PLAYLIST-.*/gm), '');
-      fs.writeFileSync(nlsFile +'-new', playData, 'utf-8');
+      try {
+        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const lines = data.split(/\r?\n/);
+        let re = /PLAYLIST-.*/;
+
+        lines.forEach((line => {
+          if (!re.test(line)) {
+            cleanData.push(line);
+          }
+        }));
+
+      } catch (error) {
+        logger.error(error);
+      }
+
+      for (let f = 0; f < playlists.length; f++) {
+        logger.info('PLAYLIST-' + f + ' = ' + playlists[f]);
+        let playList = 'PLAYLIST-' + f + ' = ' + playlists[f];
+        cleanData.push(playList);
+      }
+
+      try {
+        fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
+      } catch (error) {
+        logger.error(error);
+      }
     }
 
     async updateFavorites() {
@@ -262,7 +284,6 @@ module.exports = function(Polyglot) {
       } catch (error) {
         logger.error(error);
       }
-
     }
 
     async updateClips() {
