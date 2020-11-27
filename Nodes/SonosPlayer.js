@@ -43,7 +43,7 @@ module.exports = function(Polyglot) {
         SHUFFLE: this.playerShuffle,
         CROSSFADE: this.playerCrossfade,
         PLAYLST: this.playlist,
-        FAV: this.favorite,
+        FAV: this.playerFavorite,
         SAY: this.say,
         CLIP: this.clip,
         PLAY: this.play,
@@ -70,6 +70,7 @@ module.exports = function(Polyglot) {
         GV9: {value: '0', uom: 56}, // Members
         GV10: {value: '0', uom: 2}, // Coordinator
       };
+
     }
 
     playerVolume(message) {
@@ -151,19 +152,11 @@ module.exports = function(Polyglot) {
       }
     }
 
-    // onDON(message) {
-    //   logger.info('DON (%s): %s',
-    //     this.address,
-    //     message.value ? message.value : 'No value');
-
-    //   // setDrivers accepts string or number (message.value is a string)
-    //   this.setDriver('ST', message.value ? message.value : '100');
-    // }
-
-    // onDOF() {
-    //   logger.info('DOF (%s)', this.address);
-    //   this.setDriver('ST', '0');
-    // }
+    async playerFavorite(message) {
+      let favorites = await this.JishiAPI.favorites();
+      let favorite = favorites[message.value];
+      this.JishiAPI.playerFavorite(this.name, favorite);
+    }
 
   };
 
