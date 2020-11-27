@@ -10,7 +10,8 @@
       <sends/>
       <accepts>
         <cmd id="DISCOVER"/>
-        <cmd id="CREATE_NEW"/>
+        <cmd id="UPDATE_FAVORITES"/>
+        <cmd id="UPDATE_PLAYLISTS"/>
         <cmd id="UPDATE_PROFILE"/>
         <cmd id="REMOVE_NOTICES"/>
         <cmd id="QUERY"/>
