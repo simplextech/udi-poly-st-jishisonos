@@ -172,9 +172,7 @@ module.exports = function(Polyglot) {
     async onCreateNew() {
       const prefix = 'node';
       const nodes = this.polyInterface.getNodes();
-
-      this.updateFavorites();
-     
+           
     }
 
     // Here you could discover devices from a 3rd party API
