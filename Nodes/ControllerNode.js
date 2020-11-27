@@ -1,8 +1,8 @@
 'use strict';
 
 const fs = require('fs');
-const util = require('util');
-const flatted = require('flatted');
+// const util = require('util');
+// const {parse, stringify} = require('flatted');
 
 // The controller node is a regular ISY node. It must be the first node created
 // by the node server. It has an ST status showing the nodeserver status, and
@@ -67,7 +67,7 @@ module.exports = function(Polyglot) {
 
     }
 
-    sonosUpdate(type, data) {
+    async sonosUpdate(type, data) {
       logger.info('Update Received: ' + type);
 
       if (type == 'volume-change') {
@@ -149,13 +149,21 @@ module.exports = function(Polyglot) {
 
       if (type == 'topology-change') {
         // logger.info('Topology Change: %j', data);
+        let zones = await this.JishiAPI.zones();
+        let nodes = this.polyInterface.getNodes();
 
-        for (var i = 0; i < data.length; i++) {           
-          let _address = data[i].uuid.substring(12, 19);
-          let address = _address.toLowerCase();
+        for (let z = 0; z < zones.length; z++) {
+          // logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
+          let address = zones[z].coordinator.uuid.toString().substring(12, 19).toLowerCase();
+          let members = zones[z].members.length;
           let node = this.polyInterface.getNode(address);
 
-          node.setDriver('GV9', data[i].members.length, true, true);
+          node.setDriver('GV9', members, true, true);
+          if (members > 1) {
+            node.setDriver('GV10', 1, true, true);
+          } else {
+            node.setDriver('GV10', 0, true, true);
+          }
         }
       }
     }

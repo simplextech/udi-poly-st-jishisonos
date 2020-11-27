@@ -32,7 +32,7 @@
         <st id="GV7" editor="EQ" />  <!-- Bass -->
         <st id="GV8" editor="EQ" />  <!-- Treble -->
         <st id="GV9" editor="_56_0" />  <!-- Members -->
-        <!-- <st id="GV10" editor="bool" /> --> <!-- Coordinator -->
+        <st id="GV10" editor="bool" /> <!-- Coordinator -->
     </sts>
     <cmds>
         <sends />
