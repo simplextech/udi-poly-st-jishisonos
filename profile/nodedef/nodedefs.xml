@@ -10,9 +10,11 @@
       <sends/>
       <accepts>
         <cmd id="DISCOVER"/>
-        <cmd id="CREATE_NEW"/>
+        <cmd id="UPDATE_FAVORITES"/>
+        <cmd id="UPDATE_PLAYLISTS"/>
+        <cmd id="UPDATE_CLIPS"/>
+        <cmd id="UPDATE_SAY"/>
         <cmd id="UPDATE_PROFILE"/>
-        <cmd id="REMOVE_NOTICES"/>
         <cmd id="QUERY"/>
       </accepts>
     </cmds>
@@ -24,15 +26,15 @@
         <st id="ST" editor="PSTATUS" />
         <st id="GV0" editor="SVOL" /> <!-- Player Volume -->
         <st id="GV1" editor="SVOL" /> <!-- Group Volume -->
-        <st id="GV2" editor="bool" />  <!-- Player Mute/unMute -->
-        <st id="GV3" editor="bool" />  <!-- Group Mute/unMute -->
-        <st id="GV4" editor="bool" />  <!-- Repeat -->
-        <st id="GV5" editor="bool" />  <!-- Shuffle -->
-        <st id="GV6" editor="bool" />  <!-- Crossfade -->
+        <st id="GV2" editor="BOOL" />  <!-- Player Mute/unMute -->
+        <st id="GV3" editor="BOOL" />  <!-- Group Mute/unMute -->
+        <st id="GV4" editor="BOOL" />  <!-- Repeat -->
+        <st id="GV5" editor="BOOL" />  <!-- Shuffle -->
+        <st id="GV6" editor="BOOL" />  <!-- Crossfade -->
         <st id="GV7" editor="EQ" />  <!-- Bass -->
         <st id="GV8" editor="EQ" />  <!-- Treble -->
         <st id="GV9" editor="_56_0" />  <!-- Members -->
-        <!-- <st id="GV10" editor="bool" /> --> <!-- Coordinator -->
+        <st id="GV10" editor="BOOL" /> <!-- Coordinator -->
     </sts>
     <cmds>
         <sends />
@@ -64,32 +66,22 @@
             <cmd id="CROSSFADE">
                 <p id="" editor="BOOL" init="GV6" />
             </cmd>
-            <cmd id="PLAYLST">
-                <p id="" editor="PLIST" init="PLAYLST" />
+            <cmd id="PLAYLIST">
+                <p id="" editor="PLAYLIST" init="" />
             </cmd>
-            <cmd id="FAV">
-                <p id="" editor="PFAV" init="FAV" />
+            <cmd id="FAVORITE">
+                <p id="" editor="FAVORITE" init="" />
             </cmd>
             <cmd id="SAY">
-                <p id="" editor="SAY" init="SAY" />
+                <p id="" editor="SAY" init="" />
             </cmd>
             <cmd id="CLIP">
-                <p id="" editor="CLIP" init="CLIP" />
+                <p id="" editor="CLIP" init="" />
             </cmd>
             <cmd id="PLAY" />
             <cmd id="PAUSE" />
             <cmd id="PREVIOUS" />
             <cmd id="NEXT" />
-            <!-- <cmd id="PMUTE" /> -->
-            <!-- <cmd id="PUNMUTE" /> -->
-            <!-- <cmd id="GMUTE" /> -->
-            <!-- <cmd id="GUNMUTE" /> -->
-            <!-- <cmd id="REPEATON" /> -->
-            <!-- <cmd id="REPEATOFF" /> -->
-            <!-- <cmd id="SHUFFLEON" /> -->
-            <!-- <cmd id="SHUFFLEOFF" /> -->
-            <!-- <cmd id="CROSSFADEON" /> -->
-            <!-- <cmd id="CROSSFADEOFF" /> -->
         </accepts>
     </cmds>
     </nodeDef>

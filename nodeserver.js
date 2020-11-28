@@ -27,17 +27,37 @@ const ControllerNode = require('./Nodes/ControllerNode.js')(Polyglot);
 const SonosPlayer = require('./Nodes/SonosPlayer.js')(Polyglot);
 
 // Names of our customParams
-const emailParam = 'User';
-const pwParam = 'Password';
-const hostParam = 'Host';
-const portParam = 'Port';
+// const emailParam = 'User';
+// const pwParam = 'Password';
+// const hostParam = 'Host';
+// const portParam = 'Port';
+const say0 = 'Phrase 0';
+const say1 = 'Phrase 1';
+const say2 = 'Phrase 2';
+const say3 = 'Phrase 3';
+const say4 = 'Phrase 4';
+const say5 = 'Phrase 5';
+const say6 = 'Phrase 6';
+const say7 = 'Phrase 7';
+const say8 = 'Phrase 8';
+const say9 = 'Phrase 9';
 
 // UI customParams default values. Param must have at least 1 character
 const defaultParams = {
-  [emailParam]: ' ',
-  [pwParam]: ' ',
-  [hostParam]: ' ',
-  [portParam]: ' ',
+  [say0]: ' ',
+  [say1]: ' ',
+  [say2]: ' ',
+  [say3]: ' ',
+  [say4]: ' ',
+  [say5]: ' ',
+  [say6]: ' ',
+  [say7]: ' ',
+  [say8]: ' ',
+  [say9]: ' ',
+  // [emailParam]: ' ',
+  // [pwParam]: ' ',
+  // [hostParam]: ' ',
+  // [portParam]: ' ',
 };
 
 // UI Parameters: typedParams - Feature available in Polyglot-V2 only:
@@ -179,8 +199,12 @@ poly.on('stop', async function() {
   await doPoll(true);
 
   // Tell Interface we are stopping (Our polling is now finished)
-  poly.stop();
-  process.exit();
+  try { 
+    poly.stop();
+    // process.exit();
+  } catch (error) {
+    logger.error('poly.stop() Failed: %s', error);
+  }
 });
 
 // Received a 'delete' message from Polyglot. This NodeServer is being removed

@@ -42,10 +42,10 @@ module.exports = function(Polyglot) {
         REPEAT: this.playerRepeat,
         SHUFFLE: this.playerShuffle,
         CROSSFADE: this.playerCrossfade,
-        PLAYLST: this.playlist,
-        FAV: this.favorite,
-        SAY: this.say,
-        CLIP: this.clip,
+        PLAYLIST: this.playerPlaylist,
+        FAVORITE: this.playerFavorite,
+        SAY: this.playerSay,
+        CLIP: this.playerClip,
         PLAY: this.play,
         PAUSE: this.pause,
         NEXT: this.next,
@@ -70,6 +70,7 @@ module.exports = function(Polyglot) {
         GV9: {value: '0', uom: 56}, // Members
         GV10: {value: '0', uom: 2}, // Coordinator
       };
+
     }
 
     playerVolume(message) {
@@ -151,19 +152,28 @@ module.exports = function(Polyglot) {
       }
     }
 
-    // onDON(message) {
-    //   logger.info('DON (%s): %s',
-    //     this.address,
-    //     message.value ? message.value : 'No value');
+    async playerFavorite(message) {
+      let favorites = await this.JishiAPI.favorites();
+      let favorite = favorites[message.value];
+      this.JishiAPI.playerFavorite(this.name, favorite);
+    }
 
-    //   // setDrivers accepts string or number (message.value is a string)
-    //   this.setDriver('ST', message.value ? message.value : '100');
-    // }
+    async playerPlaylist(message) {
+      let playlists = await this.JishiAPI.playlists();
+      let playlist = playlists[message.value];
+      this.JishiAPI.playerPlaylist(this.name, playlist);
+    }
 
-    // onDOF() {
-    //   logger.info('DOF (%s)', this.address);
-    //   this.setDriver('ST', '0');
-    // }
+    async playerSay(message) {
+      let sayParams = this.polyInterface.getCustomParams();
+      for (let s in sayParams) {
+        let pos = s.split(' ')[1];
+        if (pos == message.value) {
+          logger.info('Player Say: ' + sayParams[s]);
+          this.JishiAPI.playerSay(this.name, sayParams[s]);
+        }
+      }
+    }
 
   };
 

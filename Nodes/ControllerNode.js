@@ -1,8 +1,8 @@
 'use strict';
 
 const fs = require('fs');
-const util = require('util');
-const flatted = require('flatted');
+// const util = require('util');
+// const {parse, stringify} = require('flatted');
 
 // The controller node is a regular ISY node. It must be the first node created
 // by the node server. It has an ST status showing the nodeserver status, and
@@ -39,10 +39,12 @@ module.exports = function(Polyglot) {
       // Commands that this controller node can handle.
       // Should match the 'accepts' section of the nodedef.
       this.commands = {
-        CREATE_NEW: this.onCreateNew,
+        UPDATE_FAVORITES: this.updateFavorites,
+        UPDATE_PLAYLISTS: this.updatePlaylists,
         DISCOVER: this.onDiscover,
         UPDATE_PROFILE: this.onUpdateProfile,
-        REMOVE_NOTICES: this.onRemoveNotices,
+        UPDATE_CLIPS: this.updateClips,
+        UPDATE_SAY: this.updateSay,
         QUERY: this.query,
       };
 
@@ -67,7 +69,7 @@ module.exports = function(Polyglot) {
 
     }
 
-    sonosUpdate(type, data) {
+    async sonosUpdate(type, data) {
       logger.info('Update Received: ' + type);
 
       if (type == 'volume-change') {
@@ -149,13 +151,21 @@ module.exports = function(Polyglot) {
 
       if (type == 'topology-change') {
         // logger.info('Topology Change: %j', data);
+        let zones = await this.JishiAPI.zones();
+        let nodes = this.polyInterface.getNodes();
 
-        for (var i = 0; i < data.length; i++) {           
-          let _address = data[i].uuid.substring(12, 19);
-          let address = _address.toLowerCase();
+        for (let z = 0; z < zones.length; z++) {
+          // logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
+          let address = zones[z].coordinator.uuid.toString().substring(12, 19).toLowerCase();
+          let members = zones[z].members.length;
           let node = this.polyInterface.getNode(address);
 
-          node.setDriver('GV9', data[i].members.length, true, true);
+          node.setDriver('GV9', members, true, true);
+          if (members > 1) {
+            node.setDriver('GV10', 1, true, true);
+          } else {
+            node.setDriver('GV10', 0, true, true);
+          }
         }
       }
     }
@@ -163,6 +173,7 @@ module.exports = function(Polyglot) {
     async onCreateNew() {
       const prefix = 'node';
       const nodes = this.polyInterface.getNodes();
+
     }
 
     // Here you could discover devices from a 3rd party API
@@ -199,42 +210,168 @@ module.exports = function(Polyglot) {
       }
     }
 
+    removeLine(file, input) {
+      const workFile = file;
+      const search = input.toString();
+
+      let data = fs.readFileSync(workFile, 'utf-8');
+      let newData = data.replace(new RegExp(/${search}.*/gm), '');
+      fs.writeFileSync(workFile, 'utf-8');
+    }
+
+    async updatePlaylists() {
+      let playlists = await this.JishiAPI.playlists();
+      const nlsFile = 'profile/nls/en_US.txt';
+      let cleanData = [];
+
+      try {
+        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const lines = data.split(/\r?\n/);
+        let re = /PLAY_LIST-.*/;
+
+        lines.forEach((line => {
+          if (!re.test(line)) {
+            cleanData.push(line);
+          }
+        }));
+
+      } catch (error) {
+        logger.error(error);
+      }
+
+      for (let f = 0; f < playlists.length; f++) {
+        logger.info('PLAY_LIST-' + f + ' = ' + playlists[f]);
+        let playList = 'PLAY_LIST-' + f + ' = ' + playlists[f];
+        cleanData.push(playList);
+      }
+
+      try {
+        fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
+      } catch (error) {
+        logger.error(error);
+      }
+
+      this.onUpdateProfile();
+
+    }
+
+    async updateFavorites() {
+      let favorites = await this.JishiAPI.favorites();
+      const nlsFile = 'profile/nls/en_US.txt';
+      let cleanData = [];
+
+      try {
+        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const lines = data.split(/\r?\n/);
+        let re = /FAV_LIST-.*/;
+
+        lines.forEach((line => {
+          if (!re.test(line)) {
+            cleanData.push(line);
+          }
+        }));
+
+      } catch (error) {
+        logger.error(error);
+      }
+
+      for (let f = 0; f < favorites.length; f++) {
+        logger.info('FAV_LIST-' + f + ' = ' + favorites[f]);
+        let fav = 'FAV_LIST-' + f + ' = ' + favorites[f];
+        cleanData.push(fav);
+      }
+
+      try {
+        fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
+      } catch (error) {
+        logger.error(error);
+      }
+
+      this.onUpdateProfile();
+
+    }
+
+    async updateClips() {
+      const nlsFile = 'profile/nls/en_US.txt';
+      const clipsDir = 'node-sonos-http-api/static/clips';
+      let clips = [];
+      let cleanData = [];
+
+      try {
+        fs.readdirSync(clipsDir).forEach(file => {
+          logger.info(file);
+          clips.push(file);
+        });
+      } catch (error) {
+        logger.error(error);
+      }
       
+      try {
+        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const lines = data.split(/\r?\n/);
+        let re = /CLIP_LIST-.*/;
 
-      // for (let z in zones) {
-      //   logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
+        lines.forEach((line => {
+          if (!re.test(line)) {
+            cleanData.push(line);
+          }
+        }));
 
-      //   for (let m in zones[z].members) {
-      //     logger.info('Members UUID: %s, - Room: %s', zones[z].members[m].uuid, zones[z].members[m].roomName);
-      //   }
-      // }
+      } catch (error) {
+        logger.error(error);
+      }
 
-    //   for (var i = 0; i < zones.length; i++) {
-    //     let _uuid = zones[i].uuid;
-    //     let _address = _uuid.substring(12, 19);
-    //     let address = _address.toLowerCase();
-    //     let name = zones[i].members[0].roomName;
-        
-    //     logger.info('Zone: [%s] %s - Address: %s', i, name, address);
-    //     try {
-    //       const result = await this.polyInterface.addNode(
-    //         new SonosPlayer(this.polyInterface, this.address, address, name)
-    //       );
-    //       // logger.info('Add node worked: %s', result);
-    //     } catch (err) {
-    //       logger.errorStack(err, 'Add node failed:');
-    //     }
-        
-    //     logger.info('---------------' + process.cwd());
-    //     const nlsFile = 'profile/nls/en_US.txt';
-    //     let data = fs.readFileSync(nlsFile, 'utf-8');
-    //     let remove = 'ZONE-' + i + '.*';
-    //     let replace = 'ZONE-' + i + ' = ' + name;
-    //     let newData = data.replace(new RegExp(remove), replace);
-    //     fs.writeFileSync(nlsFile, newData, 'utf-8');
-    //   }
+      for (let f = 0; f < clips.length; f++) {
+        logger.info('CLIP_LIST-' + f + ' = ' + clips[f]);
+        let clip = 'CLIP_LIST-' + f + ' = ' + clips[f];
+        cleanData.push(clip);
+      }
 
-    // }
+      try {
+        fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
+      } catch (error) {
+        logger.error(error);
+      }
+
+      this.onUpdateProfile();
+    }
+
+    async updateSay() {
+      const nlsFile = 'profile/nls/en_US.txt';
+      let sayParams = this.polyInterface.getCustomParams();
+      let cleanData = [];
+
+      try {
+        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const lines = data.split(/\r?\n/);
+        let re = /SAY_LIST-.*/;
+
+        lines.forEach((line => {
+          if (!re.test(line)) {
+            cleanData.push(line);
+          }
+        }));
+
+      } catch (error) {
+        logger.error(error);
+      }
+
+      for (let s in sayParams) {
+        let pos = s.split(' ')[1];
+        logger.info('SAY_LIST-' + pos + ' = ' + sayParams[s]);
+        let say = 'SAY_LIST-' + pos + ' = ' + sayParams[s];
+        cleanData.push(say);
+      }
+
+      try {
+        fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
+      } catch (error) {
+        logger.error(error);
+      }
+
+      this.onUpdateProfile();
+     
+    }
 
     // Sends the profile files to ISY
     onUpdateProfile() {
