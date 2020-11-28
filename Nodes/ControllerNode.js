@@ -54,6 +54,22 @@ module.exports = function(Polyglot) {
 
       this.isController = true;
       this.discovery = discovery;
+            
+      // discovery.on('transport-state', player => {
+      //   this.sonosUpdate('transport-state', player);
+      // });
+
+      // discovery.on('topology-change', topology => {
+      //   this.sonosUpdate('topology-change', topology);
+      // });
+
+      // discovery.on('volume-change', volumeChange => {
+      //   this.sonosUpdate('volume-change', volumeChange);
+      // });
+
+    }
+
+    async startListeners() {
       
       discovery.on('transport-state', player => {
         this.sonosUpdate('transport-state', player);
@@ -66,6 +82,7 @@ module.exports = function(Polyglot) {
       discovery.on('volume-change', volumeChange => {
         this.sonosUpdate('volume-change', volumeChange);
       });
+
 
     }
 
@@ -199,15 +216,10 @@ module.exports = function(Polyglot) {
             logger.errorStack(err, 'Add node failed:');
           }
 
-          // logger.info('---------------' + process.cwd());
-          const nlsFile = 'profile/nls/en_US.txt';
-          let data = fs.readFileSync(nlsFile, 'utf-8');
-          let remove = 'ZONE-' + m + '.*';
-          let replace = 'ZONE-' + m + ' = ' + name;
-          let newData = data.replace(new RegExp(remove), replace);
-          fs.writeFileSync(nlsFile, newData, 'utf-8');
         }
       }
+      this.updateZones();
+      this.startListeners();
     }
 
     removeLine(file, input) {
@@ -217,6 +229,41 @@ module.exports = function(Polyglot) {
       let data = fs.readFileSync(workFile, 'utf-8');
       let newData = data.replace(new RegExp(/${search}.*/gm), '');
       fs.writeFileSync(workFile, 'utf-8');
+    }
+
+    async updateZones() {
+      let zones = await this.JishiAPI.zones();
+      const nlsFile = 'profile/nls/en_US.txt';
+      let cleanData = [];
+
+      try {
+        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const lines = data.split(/\r?\n/);
+        let re = /ZONE-.*/;
+
+        lines.forEach((line => {
+          if (!re.test(line)) {
+            cleanData.push(line);
+          }
+        }));
+
+      } catch (error) {
+        logger.error(error);
+      }
+
+      for (let z = 0; z < zones.length; z++) {
+        logger.info('ZONE-' + z + ' = ' + zones[z].coordinator.roomName);
+        let zone = 'ZONE-' + z + ' = ' + zones[z].coordinator.roomName;
+        cleanData.push(zone);
+      }
+
+      try {
+        fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
+      } catch (error) {
+        logger.error(error);
+      }
+
+      this.onUpdateProfile();
     }
 
     async updatePlaylists() {
@@ -382,6 +429,8 @@ module.exports = function(Polyglot) {
     onRemoveNotices() {
       this.polyInterface.removeNoticesAll();
     }
+
+    
   };
 
   // Required so that the interface can find this Node class using the nodeDefId
