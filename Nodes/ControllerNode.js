@@ -43,7 +43,8 @@ module.exports = function(Polyglot) {
         UPDATE_PLAYLISTS: this.updatePlaylists,
         DISCOVER: this.onDiscover,
         UPDATE_PROFILE: this.onUpdateProfile,
-        REMOVE_NOTICES: this.onRemoveNotices,
+        UPDATE_CLIPS: this.updateClips,
+        UPDATE_SAY: this.updateSay,
         QUERY: this.query,
       };
 
@@ -172,7 +173,7 @@ module.exports = function(Polyglot) {
     async onCreateNew() {
       const prefix = 'node';
       const nodes = this.polyInterface.getNodes();
-           
+
     }
 
     // Here you could discover devices from a 3rd party API
@@ -226,7 +227,7 @@ module.exports = function(Polyglot) {
       try {
         const data = fs.readFileSync(nlsFile, 'utf-8');
         const lines = data.split(/\r?\n/);
-        let re = /PLAYLIST-.*/;
+        let re = /PLAY_LIST-.*/;
 
         lines.forEach((line => {
           if (!re.test(line)) {
@@ -239,8 +240,8 @@ module.exports = function(Polyglot) {
       }
 
       for (let f = 0; f < playlists.length; f++) {
-        logger.info('PLAYLIST-' + f + ' = ' + playlists[f]);
-        let playList = 'PLAYLIST-' + f + ' = ' + playlists[f];
+        logger.info('PLAY_LIST-' + f + ' = ' + playlists[f]);
+        let playList = 'PLAY_LIST-' + f + ' = ' + playlists[f];
         cleanData.push(playList);
       }
 
@@ -249,6 +250,9 @@ module.exports = function(Polyglot) {
       } catch (error) {
         logger.error(error);
       }
+
+      this.onUpdateProfile();
+
     }
 
     async updateFavorites() {
@@ -259,7 +263,7 @@ module.exports = function(Polyglot) {
       try {
         const data = fs.readFileSync(nlsFile, 'utf-8');
         const lines = data.split(/\r?\n/);
-        let re = /FAVORITE-.*/;
+        let re = /FAV_LIST-.*/;
 
         lines.forEach((line => {
           if (!re.test(line)) {
@@ -272,8 +276,8 @@ module.exports = function(Polyglot) {
       }
 
       for (let f = 0; f < favorites.length; f++) {
-        logger.info('FAVORITE-' + f + ' = ' + favorites[f]);
-        let fav = 'FAVORITE-' + f + ' = ' + favorites[f];
+        logger.info('FAV_LIST-' + f + ' = ' + favorites[f]);
+        let fav = 'FAV_LIST-' + f + ' = ' + favorites[f];
         cleanData.push(fav);
       }
 
@@ -282,22 +286,91 @@ module.exports = function(Polyglot) {
       } catch (error) {
         logger.error(error);
       }
+
+      this.onUpdateProfile();
+
     }
 
     async updateClips() {
       const nlsFile = 'profile/nls/en_US.txt';
+      const clipsDir = 'node-sonos-http-api/static/clips';
+      let clips = [];
+      let cleanData = [];
 
-      let data = fs.readFileSync(nlsFile, 'utf-8');
-      let clipData = data.replace(new RegExp(/FAVORITE-.*/gm), '');
-      fs.writeFileSync(nlsFile +'-new', clipData, 'utf-8');
+      try {
+        fs.readdirSync(clipsDir).forEach(file => {
+          logger.info(file);
+          clips.push(file);
+        });
+      } catch (error) {
+        logger.error(error);
+      }
+      
+      try {
+        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const lines = data.split(/\r?\n/);
+        let re = /CLIP_LIST-.*/;
+
+        lines.forEach((line => {
+          if (!re.test(line)) {
+            cleanData.push(line);
+          }
+        }));
+
+      } catch (error) {
+        logger.error(error);
+      }
+
+      for (let f = 0; f < clips.length; f++) {
+        logger.info('CLIP_LIST-' + f + ' = ' + clips[f]);
+        let clip = 'CLIP_LIST-' + f + ' = ' + clips[f];
+        cleanData.push(clip);
+      }
+
+      try {
+        fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
+      } catch (error) {
+        logger.error(error);
+      }
+
+      this.onUpdateProfile();
     }
 
     async updateSay() {
       const nlsFile = 'profile/nls/en_US.txt';
+      let sayParams = this.polyInterface.getCustomParams();
+      let cleanData = [];
 
-      let data = fs.readFileSync(nlsFile, 'utf-8');
-      let sayData = data.replace(new RegExp(/FAVORITE-.*/gm), '');
-      fs.writeFileSync(nlsFile +'-new', sayData, 'utf-8');
+      try {
+        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const lines = data.split(/\r?\n/);
+        let re = /SAY_LIST-.*/;
+
+        lines.forEach((line => {
+          if (!re.test(line)) {
+            cleanData.push(line);
+          }
+        }));
+
+      } catch (error) {
+        logger.error(error);
+      }
+
+      for (let s in sayParams) {
+        let pos = s.split(' ')[1];
+        logger.info('SAY_LIST-' + pos + ' = ' + sayParams[s]);
+        let say = 'SAY_LIST-' + pos + ' = ' + sayParams[s];
+        cleanData.push(say);
+      }
+
+      try {
+        fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
+      } catch (error) {
+        logger.error(error);
+      }
+
+      this.onUpdateProfile();
+     
     }
 
     // Sends the profile files to ISY
