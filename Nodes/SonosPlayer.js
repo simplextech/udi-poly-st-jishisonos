@@ -42,10 +42,10 @@ module.exports = function(Polyglot) {
         REPEAT: this.playerRepeat,
         SHUFFLE: this.playerShuffle,
         CROSSFADE: this.playerCrossfade,
-        PLAYLST: this.playlist,
-        FAV: this.playerFavorite,
-        SAY: this.say,
-        CLIP: this.clip,
+        PLAYLIST: this.playerPlaylist,
+        FAVORITE: this.playerFavorite,
+        SAY: this.playerSay,
+        CLIP: this.playerClip,
         PLAY: this.play,
         PAUSE: this.pause,
         NEXT: this.next,
@@ -156,6 +156,23 @@ module.exports = function(Polyglot) {
       let favorites = await this.JishiAPI.favorites();
       let favorite = favorites[message.value];
       this.JishiAPI.playerFavorite(this.name, favorite);
+    }
+
+    async playerPlaylist(message) {
+      let playlists = await this.JishiAPI.playlists();
+      let playlist = playlists[message.value];
+      this.JishiAPI.playerPlaylist(this.name, playlist);
+    }
+
+    async playerSay(message) {
+      let sayParams = this.polyInterface.getCustomParams();
+      for (let s in sayParams) {
+        let pos = s.split(' ')[1];
+        if (pos == message.value) {
+          logger.info('Player Say: ' + sayParams[s]);
+          this.JishiAPI.playerSay(this.name, sayParams[s]);
+        }
+      }
     }
 
   };
