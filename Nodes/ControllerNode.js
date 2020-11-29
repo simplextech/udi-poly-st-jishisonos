@@ -55,22 +55,6 @@ module.exports = function(Polyglot) {
       this.isController = true;
       this.discovery = discovery;
             
-      // discovery.on('transport-state', player => {
-      //   this.sonosUpdate('transport-state', player);
-      // });
-
-      // discovery.on('topology-change', topology => {
-      //   this.sonosUpdate('topology-change', topology);
-      // });
-
-      // discovery.on('volume-change', volumeChange => {
-      //   this.sonosUpdate('volume-change', volumeChange);
-      // });
-
-    }
-
-    async startListeners() {
-      
       discovery.on('transport-state', player => {
         this.sonosUpdate('transport-state', player);
       });
@@ -82,6 +66,22 @@ module.exports = function(Polyglot) {
       discovery.on('volume-change', volumeChange => {
         this.sonosUpdate('volume-change', volumeChange);
       });
+
+    }
+
+    async startListeners() {
+      
+      // discovery.on('transport-state', player => {
+      //   this.sonosUpdate('transport-state', player);
+      // });
+
+      // discovery.on('topology-change', topology => {
+      //   this.sonosUpdate('topology-change', topology);
+      // });
+
+      // discovery.on('volume-change', volumeChange => {
+      //   this.sonosUpdate('volume-change', volumeChange);
+      // });
 
 
     }
@@ -96,7 +96,13 @@ module.exports = function(Polyglot) {
         let _address = data.uuid.substring(12, 19);
         let address = _address.toLowerCase();
         let node = this.polyInterface.getNode(address);
-        node.setDriver('GV0', data.newVolume, true, true)
+        try {
+          node.setDriver('GV0', data.newVolume, true, true)
+        } catch (error) {
+          logger.error('Node does not exist: %s', address);
+        }
+        
+
       }
 
       if (type == 'transport-state') {
@@ -154,16 +160,20 @@ module.exports = function(Polyglot) {
         let address = _address.toLowerCase();
         let node = this.polyInterface.getNode(address);
 
-        node.setDriver('ST', playbackState, true, true);
-        node.setDriver('GV1', groupVolume, true, true);
-        node.setDriver('GV2', setMute, true, true);
-        node.setDriver('GV3', setGroupMute, true, true);
-        node.setDriver('GV4', setRepeat, true, true)
-        node.setDriver('GV5', setShuffle, true, true)
-        node.setDriver('GV6', setCrossfade, true, true)
-        node.setDriver('GV7', data.state.equalizer.bass, true, true)
-        node.setDriver('GV8', data.state.equalizer.treble, true, true)
-      
+        try {
+          node.setDriver('ST', playbackState, true, true);
+          node.setDriver('GV1', groupVolume, true, true);
+          node.setDriver('GV2', setMute, true, true);
+          node.setDriver('GV3', setGroupMute, true, true);
+          node.setDriver('GV4', setRepeat, true, true)
+          node.setDriver('GV5', setShuffle, true, true)
+          node.setDriver('GV6', setCrossfade, true, true)
+          node.setDriver('GV7', data.state.equalizer.bass, true, true)
+          node.setDriver('GV8', data.state.equalizer.treble, true, true)
+        } catch (error) {
+          logger.error('Node does not exist: %s', address);
+        }
+
       }
 
       if (type == 'topology-change') {
@@ -177,11 +187,15 @@ module.exports = function(Polyglot) {
           let members = zones[z].members.length;
           let node = this.polyInterface.getNode(address);
 
-          node.setDriver('GV9', members, true, true);
-          if (members > 1) {
-            node.setDriver('GV10', 1, true, true);
-          } else {
-            node.setDriver('GV10', 0, true, true);
+          try {
+            node.setDriver('GV9', members, true, true);
+            if (members > 1) {
+              node.setDriver('GV10', 1, true, true);
+            } else {
+              node.setDriver('GV10', 0, true, true);
+            }
+          } catch (error) {
+          logger.error('Node does not exist: %s', address);
           }
         }
       }
@@ -215,11 +229,9 @@ module.exports = function(Polyglot) {
           } catch (err) {
             logger.errorStack(err, 'Add node failed:');
           }
-
         }
       }
       this.updateZones();
-      this.startListeners();
     }
 
     removeLine(file, input) {
