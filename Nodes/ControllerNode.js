@@ -67,22 +67,14 @@ module.exports = function(Polyglot) {
         this.sonosUpdate('volume-change', volumeChange);
       });
 
-    }
-
-    async startListeners() {
-      
-      // discovery.on('transport-state', player => {
-      //   this.sonosUpdate('transport-state', player);
-      // });
-
-      // discovery.on('topology-change', topology => {
-      //   this.sonosUpdate('topology-change', topology);
-      // });
-
-      // discovery.on('volume-change', volumeChange => {
-      //   this.sonosUpdate('volume-change', volumeChange);
-      // });
-
+      this.JishiAPI.sleep(1000);
+      this.updateFavorites();
+      this.JishiAPI.sleep(1000);
+      this.updatePlaylists();
+      this.JishiAPI.sleep(1000);
+      this.updateSay();
+      this.JishiAPI.sleep(1000);
+      this.updateClips();
 
     }
 
@@ -225,6 +217,7 @@ module.exports = function(Polyglot) {
             const result = await this.polyInterface.addNode(
             new SonosPlayer(this.polyInterface, this.address, address, name)
             );
+            this.JishiAPI.sleep(1000);
             // logger.info('Add node worked: %s', result);
           } catch (err) {
             logger.errorStack(err, 'Add node failed:');
@@ -232,6 +225,9 @@ module.exports = function(Polyglot) {
         }
       }
       this.updateZones();
+      // this.JishiAPI.sleep(1000);
+      // this.updateFavorites();
+      // this.updatePlaylists();
     }
 
     removeLine(file, input) {
@@ -441,7 +437,6 @@ module.exports = function(Polyglot) {
     onRemoveNotices() {
       this.polyInterface.removeNoticesAll();
     }
-
     
   };
 
@@ -451,37 +446,3 @@ module.exports = function(Polyglot) {
   return Controller;
 };
 
-
-// Those are the standard properties of every nodes:
-// this.id              - Nodedef ID
-// this.polyInterface   - Polyglot interface
-// this.primary         - Primary address
-// this.address         - Node address
-// this.name            - Node name
-// this.timeAdded       - Time added (Date() object)
-// this.enabled         - Node is enabled?
-// this.added           - Node is added to ISY?
-// this.commands        - List of allowed commands
-//                        (You need to define them in your custom node)
-// this.drivers         - List of drivers
-//                        (You need to define them in your custom node)
-
-// Those are the standard methods of every nodes:
-// Get the driver object:
-// this.getDriver(driver)
-
-// Set a driver to a value (example set ST to 100)
-// this.setDriver(driver, value, report=true, forceReport=false, uom=null)
-
-// Send existing driver value to ISY
-// this.reportDriver(driver, forceReport)
-
-// Send existing driver values to ISY
-// this.reportDrivers()
-
-// When we get a query request for this node.
-// Can be overridden to actually fetch values from an external API
-// this.query()
-
-// When we get a status request for this node.
-// this.status()
