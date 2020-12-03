@@ -87,8 +87,8 @@ module.exports = function(Polyglot) {
 
         let _address = data.uuid.substring(12, 19);
         let address = _address.toLowerCase();
-        let node = this.polyInterface.getNode(address);
         try {
+          let node = this.polyInterface.getNode(address);
           node.setDriver('GV0', data.newVolume, true, true)
         } catch (error) {
           logger.error('Node does not exist: %s', address);
@@ -150,9 +150,10 @@ module.exports = function(Polyglot) {
 
         let _address = data.uuid.substring(12, 19);
         let address = _address.toLowerCase();
-        let node = this.polyInterface.getNode(address);
 
         try {
+          let node = this.polyInterface.getNode(address);
+
           node.setDriver('ST', playbackState, true, true);
           node.setDriver('GV1', groupVolume, true, true);
           node.setDriver('GV2', setMute, true, true);
@@ -171,15 +172,16 @@ module.exports = function(Polyglot) {
       if (type == 'topology-change') {
         // logger.info('Topology Change: %j', data);
         let zones = await this.JishiAPI.zones();
-        let nodes = this.polyInterface.getNodes();
+        // let nodes = this.polyInterface.getNodes();
 
         for (let z = 0; z < zones.length; z++) {
           // logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
           let address = zones[z].coordinator.uuid.toString().substring(12, 19).toLowerCase();
           let members = zones[z].members.length;
-          let node = this.polyInterface.getNode(address);
 
           try {
+            let node = this.polyInterface.getNode(address);
+
             node.setDriver('GV9', members, true, true);
             if (members > 1) {
               node.setDriver('GV10', 1, true, true);

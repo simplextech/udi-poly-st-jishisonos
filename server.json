@@ -9,7 +9,7 @@
   "notice": "",
   "shortPoll": "600",
   "longPoll": "900",
-  "profile_version": "1.1.0",
+  "profile_version": "0.1.0",
   "credits": [
     {
       "title": "Converged Jishi Sonos API Into a Polyglot NodeServer",
