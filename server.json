@@ -2,7 +2,7 @@
   "name": "ST-JishiSonos",
   "docs": "https://github.com/UniversalDevicesInc/poly-template-nodejs",
   "type": "node",
-  "executable": "nodeserver.js",
+  "executable": "st-jishisonos.js",
   "install": "install.sh",
   "install_cloud": "install_cloud.sh",
   "description": "Converged Jishi Sonos API Into a Polyglot NodeServer",
