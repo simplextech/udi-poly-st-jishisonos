@@ -175,6 +175,17 @@ module.exports = function(Polyglot) {
       }
     }
 
+    async playerSayAll(message) {
+      let sayParams = this.polyInterface.getCustomParams();
+      for (let s in sayParams) {
+        let pos = s.split(' ')[1];
+        if (pos == message.value) {
+          logger.info('Player Say: ' + sayParams[s]);
+          this.JishiAPI.playerSayAll(sayParams[s]);
+        }
+      }
+    }
+
   };
 
   // Required so that the interface can find this Node class using the nodeDefId

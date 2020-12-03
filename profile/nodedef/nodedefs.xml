@@ -75,6 +75,9 @@
             <cmd id="SAY">
                 <p id="" editor="SAY" init="" />
             </cmd>
+            <cmd id="SAYALL">
+                <p id="" editor="SAY" init="" />
+            </cmd>
             <cmd id="CLIP">
                 <p id="" editor="CLIP" init="" />
             </cmd>
