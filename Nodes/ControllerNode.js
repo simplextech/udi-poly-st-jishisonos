@@ -1,6 +1,5 @@
 'use strict';
 
-const fs = require('fs');
 // const util = require('util');
 // const {parse, stringify} = require('flatted');
 
@@ -17,6 +16,7 @@ module.exports = function(Polyglot) {
   // Utility function provided to facilitate logging.
   const logger = Polyglot.logger;
 
+  const fs = require('fs');
   const SonosSystem = require('sonos-discovery');
   const settings = require('../node-sonos-http-api/settings');
   const discovery = new SonosSystem(settings);
@@ -45,6 +45,10 @@ module.exports = function(Polyglot) {
         UPDATE_PROFILE: this.onUpdateProfile,
         UPDATE_CLIPS: this.updateClips,
         UPDATE_SAY: this.updateSay,
+        SAYALL: this.playerSayAll,
+        CLIPALL: this.playerClipAll,
+        PAUSEALL: this.pauseAll,
+        RESUMEALL: this.resumeAll,
         QUERY: this.query,
       };
 
@@ -54,30 +58,22 @@ module.exports = function(Polyglot) {
 
       this.isController = true;
       this.discovery = discovery;
-    
-      let nodes = this.polyInterface.getNodes();
-      if (this.polyInterface.getNodes() > 1) {  
-        discovery.on('transport-state', player => {
-          this.sonosUpdate('transport-state', player);
-        });
 
-        discovery.on('topology-change', topology => {
-          this.sonosUpdate('topology-change', topology);
-        });
+      // const nodes = this.polyInterface.getNodes();
+      // let nodeCount = Object.keys(nodes).length
 
-        discovery.on('volume-change', volumeChange => {
-          this.sonosUpdate('volume-change', volumeChange);
-        });
-      }
+      discovery.on('transport-state', player => {
+        this.sonosUpdate('transport-state', player);
+      });
 
-      // this.JishiAPI.sleep(5000);
-      // this.updateFavorites();
-      // this.JishiAPI.sleep(1000);
-      // this.updatePlaylists();
-      // this.JishiAPI.sleep(1000);
-      // this.updateSay();
-      // this.JishiAPI.sleep(1000);
-      // this.updateClips();
+      discovery.on('topology-change', topology => {
+        this.sonosUpdate('topology-change', topology);
+      });
+
+      discovery.on('volume-change', volumeChange => {
+        this.sonosUpdate('volume-change', volumeChange);
+      });
+
 
       this.Init();
 
@@ -99,7 +95,7 @@ module.exports = function(Polyglot) {
       this.updateSay();
       await this.sleep(1000);
       this.updateClips();
-
+      // await this.sleep(1000);
 
     }
 
@@ -234,7 +230,6 @@ module.exports = function(Polyglot) {
 
     }
 
-    // Here you could discover devices from a 3rd party API
     async onDiscover() {
 
       logger.info('Discovering');
@@ -260,9 +255,7 @@ module.exports = function(Polyglot) {
         }
       }
       this.updateZones();
-      // this.JishiAPI.sleep(1000);
-      // this.updateFavorites();
-      // this.updatePlaylists();
+      this.polyInterface.restart();
     }
 
     async updateZones() {
@@ -462,6 +455,52 @@ module.exports = function(Polyglot) {
     // Removes notices from the Polyglot UI
     onRemoveNotices() {
       this.polyInterface.removeNoticesAll();
+    }
+
+    async playerSayAll(message) {
+      let sayParams = this.polyInterface.getCustomParams();
+      for (let s in sayParams) {
+        let pos = s.split(' ')[1];
+        if (pos == message.value) {
+          logger.info('Player Say: ' + sayParams[s]);
+          let call = await this.JishiAPI.playerSayAll(sayParams[s]);
+          logger.info('SayAll return: %s', call);
+        }
+      }
+    }
+
+    async playerClipAll(message) {
+      const clipsDir = 'node-sonos-http-api/static/clips';
+      let clips = [];
+
+      try {
+        fs.readdirSync(clipsDir).forEach(file => {
+          logger.info('Clip All file: %s', file);
+          clips.push(file);
+        });
+      } catch (error) {
+        logger.error(error);
+      }
+
+      let playClip = clips[message.value];
+      let call = await this.JishiAPI.playerClipAll(playClip);
+      logger.info('Clip All API Return: %s', call);
+    }
+
+    pauseAll(message) {
+      if (message.value) {
+        this.JishiAPI.pauseAll(message.value);
+      } else {
+        this.JishiAPI.pauseAll();
+      }
+    }
+
+    resumeAll(message) {
+      if (message.value) {
+        this.JishiAPI.resumeAll(message.value);
+      } else {
+        this.JishiAPI.resumeAll();
+      } 
     }
     
   };
