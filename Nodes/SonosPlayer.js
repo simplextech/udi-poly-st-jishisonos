@@ -1,5 +1,7 @@
 'use strict';
 
+const fs = require('fs');
+
 // This is an example NodeServer Node definition.
 // You need one per nodedefs.
 
@@ -45,11 +47,13 @@ module.exports = function(Polyglot) {
         PLAYLIST: this.playerPlaylist,
         FAVORITE: this.playerFavorite,
         SAY: this.playerSay,
+        SAYALL: this.playerSayAll,
         CLIP: this.playerClip,
-        PLAY: this.play,
-        PAUSE: this.pause,
-        NEXT: this.next,
-        PREVIOUS: this.previous,
+        CLIPALL: this.playerClipAll,
+        PLAY: this.playerPlay,
+        PAUSE: this.playerPause,
+        NEXT: this.playerNext,
+        PREVIOUS: this.playerPrevious,
         // You can use the query function from the base class directly
         QUERY: this.query,
       };
@@ -102,19 +106,19 @@ module.exports = function(Polyglot) {
       }
     }
 
-    play() {
+    playerPlay() {
       this.JishiAPI.play(this.name);
     }
 
-    pause() {
+    playerPause() {
       this.JishiAPI.pause(this.name);
     }
 
-    next() {
+    playerNext() {
       this.JishiAPI.next(this.name);
     }
 
-    previous() {
+    playerPrevious() {
       this.JishiAPI.previous(this.name);
     }
 
@@ -181,10 +185,48 @@ module.exports = function(Polyglot) {
         let pos = s.split(' ')[1];
         if (pos == message.value) {
           logger.info('Player Say: ' + sayParams[s]);
-          this.JishiAPI.playerSayAll(sayParams[s]);
+          let call = await this.JishiAPI.playerSayAll(sayParams[s]);
+          logger.info('SayAll return: %s', call);
         }
       }
     }
+
+    async playerClip(message) {
+      const clipsDir = 'node-sonos-http-api/static/clips';
+      let clips = [];
+
+      try {
+        fs.readdirSync(clipsDir).forEach(file => {
+          logger.info('Clip file: %s', file);
+          clips.push(file);
+        });
+      } catch (error) {
+        logger.error(error);
+      }
+
+      let playClip = clips[message.value];
+      this.JishiAPI.playerClip(this.name, playClip);
+    }
+
+    async playerClipAll(message) {
+      const clipsDir = 'node-sonos-http-api/static/clips';
+      let clips = [];
+
+      try {
+        fs.readdirSync(clipsDir).forEach(file => {
+          logger.info('Clip All file: %s', file);
+          clips.push(file);
+        });
+      } catch (error) {
+        logger.error(error);
+      }
+
+      let playClip = clips[message.value];
+      let call = await this.JishiAPI.playerClipAll(playClip);
+      logger.info('Clip All API Return: %s', call);
+    }
+
+
 
   };
 

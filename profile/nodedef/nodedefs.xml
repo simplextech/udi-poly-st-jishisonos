@@ -81,6 +81,9 @@
             <cmd id="CLIP">
                 <p id="" editor="CLIP" init="" />
             </cmd>
+            <cmd id="CLIPALL">
+                <p id="" editor="CLIP" init="" />
+            </cmd>
             <cmd id="PLAY" />
             <cmd id="PAUSE" />
             <cmd id="PREVIOUS" />
