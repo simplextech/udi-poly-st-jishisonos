@@ -9,6 +9,18 @@
     <cmds>
       <sends/>
       <accepts>
+        <cmd id="SAYALL">
+            <p id="" editor="SAY" init="" />
+        </cmd>
+        <cmd id="CLIPALL">
+            <p id="" editor="CLIP" init="" />
+        </cmd>
+        <cmd id="PAUSEALL">
+            <p id="" editor="TIMEOUT" init="" optional="T" />
+        </cmd>
+        <cmd id="RESUMEALL">
+            <p id="" editor="TIMEOUT" init="" optional="T" />
+        </cmd>
         <cmd id="DISCOVER"/>
         <cmd id="UPDATE_FAVORITES"/>
         <cmd id="UPDATE_PLAYLISTS"/>

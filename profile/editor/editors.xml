@@ -36,5 +36,9 @@
   <editor id="CLIP">
       <range uom="25" subset="0-49" nls="CLIP_LIST"/>
   </editor>
+
+  <editor id="TIMEOUT">
+      <range uom="45" subset="0-60"/>
+  </editor>
   
 </editors>
