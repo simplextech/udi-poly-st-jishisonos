@@ -20,9 +20,8 @@ module.exports = function(Polyglot) {
   const SonosSystem = require('sonos-discovery');
   const settings = require('../node-sonos-http-api/settings');
   const discovery = new SonosSystem(settings);
+  const cp = require('child_process');
 
-  // In this example, we also need to have our custom node because we create
-  // nodes from this controller. See onCreateNew
   const SonosPlayer = require('./SonosPlayer.js')(Polyglot);
 
 
@@ -35,6 +34,7 @@ module.exports = function(Polyglot) {
       super(nodeDefId, polyInterface, primary, address, name);
 
       this.JishiAPI = require('../lib/JishiAPI.js')(Polyglot, polyInterface);
+      this.jishi = cp.fork('./lib/JishiServer.js');
 
       // Commands that this controller node can handle.
       // Should match the 'accepts' section of the nodedef.
@@ -54,27 +54,52 @@ module.exports = function(Polyglot) {
 
       this.isController = true;
       this.discovery = discovery;
-            
-      discovery.on('transport-state', player => {
-        this.sonosUpdate('transport-state', player);
-      });
+    
+      let nodes = this.polyInterface.getNodes();
+      if (this.polyInterface.getNodes() > 1) {  
+        discovery.on('transport-state', player => {
+          this.sonosUpdate('transport-state', player);
+        });
 
-      discovery.on('topology-change', topology => {
-        this.sonosUpdate('topology-change', topology);
-      });
+        discovery.on('topology-change', topology => {
+          this.sonosUpdate('topology-change', topology);
+        });
 
-      discovery.on('volume-change', volumeChange => {
-        this.sonosUpdate('volume-change', volumeChange);
-      });
+        discovery.on('volume-change', volumeChange => {
+          this.sonosUpdate('volume-change', volumeChange);
+        });
+      }
 
-      this.JishiAPI.sleep(1000);
+      // this.JishiAPI.sleep(5000);
+      // this.updateFavorites();
+      // this.JishiAPI.sleep(1000);
+      // this.updatePlaylists();
+      // this.JishiAPI.sleep(1000);
+      // this.updateSay();
+      // this.JishiAPI.sleep(1000);
+      // this.updateClips();
+
+      this.Init();
+
+     }
+
+
+    sleep(ms) {
+      return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+      })
+    }
+
+    async Init() {
+      await this.sleep(2000);
       this.updateFavorites();
-      this.JishiAPI.sleep(1000);
+      await this.sleep(1000);
       this.updatePlaylists();
-      this.JishiAPI.sleep(1000);
+      await this.sleep(1000);
       this.updateSay();
-      this.JishiAPI.sleep(1000);
+      await this.sleep(1000);
       this.updateClips();
+
 
     }
 
@@ -87,14 +112,17 @@ module.exports = function(Polyglot) {
 
         let _address = data.uuid.substring(12, 19);
         let address = _address.toLowerCase();
-        try {
-          let node = this.polyInterface.getNode(address);
-          node.setDriver('GV0', data.newVolume, true, true)
-        } catch (error) {
-          logger.error('Node does not exist: %s', address);
-        }
-        
+        let node;
 
+        try {
+          node = this.polyInterface.getNode(address);
+        } catch (error) {
+          logger.info(error);
+        }
+
+        if (node) {
+          node.setDriver('GV0', data.newVolume, true, true)
+        }
       }
 
       if (type == 'transport-state') {
@@ -150,10 +178,15 @@ module.exports = function(Polyglot) {
 
         let _address = data.uuid.substring(12, 19);
         let address = _address.toLowerCase();
+        let node;
 
         try {
-          let node = this.polyInterface.getNode(address);
+          node = this.polyInterface.getNode(address);
+        } catch (error) {
+          logger.error(error);
+        }
 
+        if (node) {
           node.setDriver('ST', playbackState, true, true);
           node.setDriver('GV1', groupVolume, true, true);
           node.setDriver('GV2', setMute, true, true);
@@ -163,10 +196,7 @@ module.exports = function(Polyglot) {
           node.setDriver('GV6', setCrossfade, true, true)
           node.setDriver('GV7', data.state.equalizer.bass, true, true)
           node.setDriver('GV8', data.state.equalizer.treble, true, true)
-        } catch (error) {
-          logger.error('Node does not exist: %s', address);
         }
-
       }
 
       if (type == 'topology-change') {
@@ -178,18 +208,21 @@ module.exports = function(Polyglot) {
           // logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
           let address = zones[z].coordinator.uuid.toString().substring(12, 19).toLowerCase();
           let members = zones[z].members.length;
+          let node;
 
           try {
-            let node = this.polyInterface.getNode(address);
+            node = this.polyInterface.getNode(address);
+          } catch (error) {
+            logger.info(error);
+          }
 
+          if (node) {
             node.setDriver('GV9', members, true, true);
             if (members > 1) {
               node.setDriver('GV10', 1, true, true);
             } else {
               node.setDriver('GV10', 0, true, true);
-            }
-          } catch (error) {
-          logger.error('Node does not exist: %s', address);
+            }  
           }
         }
       }
@@ -230,15 +263,6 @@ module.exports = function(Polyglot) {
       // this.JishiAPI.sleep(1000);
       // this.updateFavorites();
       // this.updatePlaylists();
-    }
-
-    removeLine(file, input) {
-      const workFile = file;
-      const search = input.toString();
-
-      let data = fs.readFileSync(workFile, 'utf-8');
-      let newData = data.replace(new RegExp(/${search}.*/gm), '');
-      fs.writeFileSync(workFile, 'utf-8');
     }
 
     async updateZones() {
