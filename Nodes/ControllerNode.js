@@ -87,15 +87,15 @@ module.exports = function(Polyglot) {
     }
 
     async Init() {
-      await this.sleep(2000);
+      await this.sleep(5000);
       this.updateFavorites();
-      await this.sleep(1000);
+      await this.sleep(2000);
       this.updatePlaylists();
-      await this.sleep(1000);
+      await this.sleep(2000);
       this.updateSay();
-      await this.sleep(1000);
+      await this.sleep(2000);
       this.updateClips();
-      await this.sleep(1000);
+      await this.sleep(2000);
       this.updateZones();
 
     }
@@ -256,7 +256,7 @@ module.exports = function(Polyglot) {
           }
         }
       }
-      this.updateZones();
+      // this.updateZones();
       this.polyInterface.restart();
     }
 
@@ -265,34 +265,36 @@ module.exports = function(Polyglot) {
       const nlsFile = 'profile/nls/en_US.txt';
       let cleanData = [];
 
-      try {
-        const data = fs.readFileSync(nlsFile, 'utf-8');
-        const lines = data.split(/\r?\n/);
-        let re = /ZONE-.*/;
-
-        lines.forEach((line => {
-          if (!re.test(line)) {
-            cleanData.push(line);
-          }
-        }));
-
-      } catch (error) {
-        logger.error(error);
+      if (zones.length != 0) {
+        try {
+          const data = fs.readFileSync(nlsFile, 'utf-8');
+          const lines = data.split(/\r?\n/);
+          let re = /ZONE-.*/;
+  
+          lines.forEach((line => {
+            if (!re.test(line)) {
+              cleanData.push(line);
+            }
+          }));
+  
+        } catch (error) {
+          logger.error(error);
+        }
+  
+        for (let z = 0; z < zones.length; z++) {
+          logger.info('ZONE-' + z + ' = ' + zones[z].coordinator.roomName);
+          let zone = 'ZONE-' + z + ' = ' + zones[z].coordinator.roomName;
+          cleanData.push(zone);
+        }
+  
+        try {
+          fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
+        } catch (error) {
+          logger.error(error);
+        }
+  
+        this.onUpdateProfile();
       }
-
-      for (let z = 0; z < zones.length; z++) {
-        logger.info('ZONE-' + z + ' = ' + zones[z].coordinator.roomName);
-        let zone = 'ZONE-' + z + ' = ' + zones[z].coordinator.roomName;
-        cleanData.push(zone);
-      }
-
-      try {
-        fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
-      } catch (error) {
-        logger.error(error);
-      }
-
-      this.onUpdateProfile();
     }
 
     async updatePlaylists() {
@@ -300,35 +302,36 @@ module.exports = function(Polyglot) {
       const nlsFile = 'profile/nls/en_US.txt';
       let cleanData = [];
 
-      try {
-        const data = fs.readFileSync(nlsFile, 'utf-8');
-        const lines = data.split(/\r?\n/);
-        let re = /PLAY_LIST-.*/;
-
-        lines.forEach((line => {
-          if (!re.test(line)) {
-            cleanData.push(line);
-          }
-        }));
-
-      } catch (error) {
-        logger.error(error);
+      if (playlists.length != 0) {
+        try {
+          const data = fs.readFileSync(nlsFile, 'utf-8');
+          const lines = data.split(/\r?\n/);
+          let re = /PLAY_LIST-.*/;
+  
+          lines.forEach((line => {
+            if (!re.test(line)) {
+              cleanData.push(line);
+            }
+          }));
+  
+        } catch (error) {
+          logger.error(error);
+        }
+  
+        for (let f = 0; f < playlists.length; f++) {
+          logger.info('PLAY_LIST-' + f + ' = ' + playlists[f]);
+          let playList = 'PLAY_LIST-' + f + ' = ' + playlists[f];
+          cleanData.push(playList);
+        }
+  
+        try {
+          fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
+        } catch (error) {
+          logger.error(error);
+        }
+  
+        this.onUpdateProfile();
       }
-
-      for (let f = 0; f < playlists.length; f++) {
-        logger.info('PLAY_LIST-' + f + ' = ' + playlists[f]);
-        let playList = 'PLAY_LIST-' + f + ' = ' + playlists[f];
-        cleanData.push(playList);
-      }
-
-      try {
-        fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
-      } catch (error) {
-        logger.error(error);
-      }
-
-      this.onUpdateProfile();
-
     }
 
     async updateFavorites() {
@@ -336,35 +339,36 @@ module.exports = function(Polyglot) {
       const nlsFile = 'profile/nls/en_US.txt';
       let cleanData = [];
 
-      try {
-        const data = fs.readFileSync(nlsFile, 'utf-8');
-        const lines = data.split(/\r?\n/);
-        let re = /FAV_LIST-.*/;
-
-        lines.forEach((line => {
-          if (!re.test(line)) {
-            cleanData.push(line);
-          }
-        }));
-
-      } catch (error) {
-        logger.error(error);
+      if (favorites.length != 0) {
+        try {
+          const data = fs.readFileSync(nlsFile, 'utf-8');
+          const lines = data.split(/\r?\n/);
+          let re = /FAV_LIST-.*/;
+  
+          lines.forEach((line => {
+            if (!re.test(line)) {
+              cleanData.push(line);
+            }
+          }));
+  
+        } catch (error) {
+          logger.error(error);
+        }
+  
+        for (let f = 0; f < favorites.length; f++) {
+          logger.info('FAV_LIST-' + f + ' = ' + favorites[f]);
+          let fav = 'FAV_LIST-' + f + ' = ' + favorites[f];
+          cleanData.push(fav);
+        }
+  
+        try {
+          fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
+        } catch (error) {
+          logger.error(error);
+        }
+  
+        this.onUpdateProfile();
       }
-
-      for (let f = 0; f < favorites.length; f++) {
-        logger.info('FAV_LIST-' + f + ' = ' + favorites[f]);
-        let fav = 'FAV_LIST-' + f + ' = ' + favorites[f];
-        cleanData.push(fav);
-      }
-
-      try {
-        fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
-      } catch (error) {
-        logger.error(error);
-      }
-
-      this.onUpdateProfile();
-
     }
 
     async updateClips() {
@@ -373,43 +377,45 @@ module.exports = function(Polyglot) {
       let clips = [];
       let cleanData = [];
 
-      try {
-        fs.readdirSync(clipsDir).forEach(file => {
-          logger.info(file);
-          clips.push(file);
-        });
-      } catch (error) {
-        logger.error(error);
+      if (clips.length != 0) {
+        try {
+          fs.readdirSync(clipsDir).forEach(file => {
+            logger.info(file);
+            clips.push(file);
+          });
+        } catch (error) {
+          logger.error(error);
+        }
+        
+        try {
+          const data = fs.readFileSync(nlsFile, 'utf-8');
+          const lines = data.split(/\r?\n/);
+          let re = /CLIP_LIST-.*/;
+  
+          lines.forEach((line => {
+            if (!re.test(line)) {
+              cleanData.push(line);
+            }
+          }));
+  
+        } catch (error) {
+          logger.error(error);
+        }
+  
+        for (let f = 0; f < clips.length; f++) {
+          logger.info('CLIP_LIST-' + f + ' = ' + clips[f]);
+          let clip = 'CLIP_LIST-' + f + ' = ' + clips[f];
+          cleanData.push(clip);
+        }
+  
+        try {
+          fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
+        } catch (error) {
+          logger.error(error);
+        }
+  
+        this.onUpdateProfile();
       }
-      
-      try {
-        const data = fs.readFileSync(nlsFile, 'utf-8');
-        const lines = data.split(/\r?\n/);
-        let re = /CLIP_LIST-.*/;
-
-        lines.forEach((line => {
-          if (!re.test(line)) {
-            cleanData.push(line);
-          }
-        }));
-
-      } catch (error) {
-        logger.error(error);
-      }
-
-      for (let f = 0; f < clips.length; f++) {
-        logger.info('CLIP_LIST-' + f + ' = ' + clips[f]);
-        let clip = 'CLIP_LIST-' + f + ' = ' + clips[f];
-        cleanData.push(clip);
-      }
-
-      try {
-        fs.writeFileSync(nlsFile, cleanData.join('\n'), 'utf-8');
-      } catch (error) {
-        logger.error(error);
-      }
-
-      this.onUpdateProfile();
     }
 
     async updateSay() {
