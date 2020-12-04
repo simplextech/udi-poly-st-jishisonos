@@ -1,19 +1,8 @@
 'use strict';
 
-// const util = require('util');
-// const {parse, stringify} = require('flatted');
-
-// The controller node is a regular ISY node. It must be the first node created
-// by the node server. It has an ST status showing the nodeserver status, and
-// optionally node statuses. It usually has a few commands on the node to
-// facilitate interaction with the nodeserver from the admin console or
-// ISY programs.
-
-// nodeDefId must match the nodedef id in your nodedef
 const nodeDefId = 'CONTROLLER';
 
 module.exports = function(Polyglot) {
-  // Utility function provided to facilitate logging.
   const logger = Polyglot.logger;
 
   const fs = require('fs');
@@ -24,17 +13,12 @@ module.exports = function(Polyglot) {
 
   const SonosPlayer = require('./SonosPlayer.js')(Polyglot);
 
-
   class Controller extends Polyglot.Node {
-    // polyInterface: handle to the interface
-    // address: Your node address, withouth the leading 'n999_'
-    // primary: Same as address, if the node is a primary node
-    // name: Your node name
     constructor(polyInterface, primary, address, name) {
       super(nodeDefId, polyInterface, primary, address, name);
 
       this.JishiAPI = require('../lib/JishiAPI.js')(Polyglot, polyInterface);
-      this.jishi = cp.fork('./lib/JishiServer.js');
+      this.jishiServer = cp.fork('./lib/JishiServer.js');
 
       // Commands that this controller node can handle.
       // Should match the 'accepts' section of the nodedef.
@@ -55,6 +39,11 @@ module.exports = function(Polyglot) {
       this.drivers = {
         ST: { value: '1', uom: 2 },
       };
+
+      // this.polyInterface.on('stop', async function() {
+      //   this.jishiServer.send('shutdown');
+      // })
+      // poly.on('stop', async function() {
 
       this.isController = true;
       this.discovery = discovery;
