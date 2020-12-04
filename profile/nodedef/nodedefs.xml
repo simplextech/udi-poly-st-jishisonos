@@ -9,6 +9,18 @@
     <cmds>
       <sends/>
       <accepts>
+        <cmd id="SAYALL">
+            <p id="" editor="SAY" init="" />
+        </cmd>
+        <cmd id="CLIPALL">
+            <p id="" editor="CLIP" init="" />
+        </cmd>
+        <cmd id="PAUSEALL">
+            <p id="" editor="TIMEOUT" init="" optional="T" />
+        </cmd>
+        <cmd id="RESUMEALL">
+            <p id="" editor="TIMEOUT" init="" optional="T" />
+        </cmd>
         <cmd id="DISCOVER"/>
         <cmd id="UPDATE_FAVORITES"/>
         <cmd id="UPDATE_PLAYLISTS"/>
@@ -75,13 +87,23 @@
             <cmd id="SAY">
                 <p id="" editor="SAY" init="" />
             </cmd>
+            <!-- <cmd id="SAYALL">
+                <p id="" editor="SAY" init="" />
+            </cmd> -->
             <cmd id="CLIP">
                 <p id="" editor="CLIP" init="" />
             </cmd>
-            <cmd id="PLAY" />
-            <cmd id="PAUSE" />
-            <cmd id="PREVIOUS" />
-            <cmd id="NEXT" />
+            <!-- <cmd id="CLIPALL">
+                <p id="" editor="CLIP" init="" />
+            </cmd> -->
+            <cmd id="JOIN">
+                <p id="" editor="ZONES" init="" />
+            </cmd>
+            <cmd id="LEAVE"/>
+            <cmd id="PLAY"/>
+            <cmd id="PAUSE"/>
+            <cmd id="PREVIOUS"/>
+            <cmd id="NEXT"/>
         </accepts>
     </cmds>
     </nodeDef>

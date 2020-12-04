@@ -1,5 +1,8 @@
 'use strict';
 
+const { Console } = require('console');
+const fs = require('fs');
+
 // This is an example NodeServer Node definition.
 // You need one per nodedefs.
 
@@ -45,11 +48,15 @@ module.exports = function(Polyglot) {
         PLAYLIST: this.playerPlaylist,
         FAVORITE: this.playerFavorite,
         SAY: this.playerSay,
+        // SAYALL: this.playerSayAll,
         CLIP: this.playerClip,
-        PLAY: this.play,
-        PAUSE: this.pause,
-        NEXT: this.next,
-        PREVIOUS: this.previous,
+        // CLIPALL: this.playerClipAll,
+        JOIN: this.playerJoin,
+        LEAVE: this.playerLeave,
+        PLAY: this.playerPlay,
+        PAUSE: this.playerPause,
+        NEXT: this.playerNext,
+        PREVIOUS: this.playerPrevious,
         // You can use the query function from the base class directly
         QUERY: this.query,
       };
@@ -102,19 +109,19 @@ module.exports = function(Polyglot) {
       }
     }
 
-    play() {
+    playerPlay() {
       this.JishiAPI.play(this.name);
     }
 
-    pause() {
+    playerPause() {
       this.JishiAPI.pause(this.name);
     }
 
-    next() {
+    playerNext() {
       this.JishiAPI.next(this.name);
     }
 
-    previous() {
+    playerPrevious() {
       this.JishiAPI.previous(this.name);
     }
 
@@ -174,6 +181,102 @@ module.exports = function(Polyglot) {
         }
       }
     }
+
+    async playerSayAll(message) {
+      let sayParams = this.polyInterface.getCustomParams();
+      for (let s in sayParams) {
+        let pos = s.split(' ')[1];
+        if (pos == message.value) {
+          logger.info('Player Say: ' + sayParams[s]);
+          let call = await this.JishiAPI.playerSayAll(sayParams[s]);
+          logger.info('SayAll return: %s', call);
+        }
+      }
+    }
+
+    async playerClip(message) {
+      const clipsDir = 'node-sonos-http-api/static/clips';
+      let clips = [];
+
+      try {
+        fs.readdirSync(clipsDir).forEach(file => {
+          logger.info('Clip file: %s', file);
+          clips.push(file);
+        });
+      } catch (error) {
+        logger.error(error);
+      }
+
+      let playClip = clips[message.value];
+      this.JishiAPI.playerClip(this.name, playClip);
+    }
+
+    async playerClipAll(message) {
+      const clipsDir = 'node-sonos-http-api/static/clips';
+      let clips = [];
+
+      try {
+        fs.readdirSync(clipsDir).forEach(file => {
+          logger.info('Clip All file: %s', file);
+          clips.push(file);
+        });
+      } catch (error) {
+        logger.error(error);
+      }
+
+      let playClip = clips[message.value];
+      let call = await this.JishiAPI.playerClipAll(playClip);
+      logger.info('Clip All API Return: %s', call);
+    }
+
+    async playerJoin(message) {
+      // let zones = await this.JishiAPI.zones();
+      // let zoneData = [];
+
+      // for (let z = 0; z < zones.length; z++) {
+      //   // logger.info('ZONE-' + z + ' = ' + zones[z].coordinator.roomName);
+      //   let zone = zones[z].coordinator.roomName;
+      //   zoneData.push(zone);
+      // }
+
+      // logger.info('Join Zone: ' + message.value);
+      // logger.info('Zone Text: ' + zoneData[message.value]);
+
+      // let data = await this.JishiAPI.playerJoin(this.name, zoneData[message.value]);
+
+      const nlsFile = 'profile/nls/en_US.txt';
+      let zoneData = [];
+
+      try {
+        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const lines = data.split(/\r?\n/);
+        let re = /ZONE-.*/;
+
+        lines.forEach((line => {
+          if (re.test(line)) {
+            zoneData.push(line.split('=')[1].trim());
+          }
+        }));
+
+      } catch (error) {
+        logger.error(error);
+      }
+
+      logger.info('Zone Data: ' + zoneData);
+      for (const z in zoneData) {
+        logger.info(zoneData[z]);
+      };
+
+      logger.info('Join Zone: ' + message.value);
+      logger.info('Zone Text: ' + zoneData[message.value]);
+      await this.JishiAPI.playerJoin(this.name, zoneData[message.value]);
+
+    }
+
+    async playerLeave() {
+      await this.JishiAPI.playerLeave(this.name);
+    }
+
 
   };
 
