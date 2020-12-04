@@ -201,28 +201,30 @@ module.exports = function(Polyglot) {
         let zones = await this.JishiAPI.zones();
         // let nodes = this.polyInterface.getNodes();
 
-        for (let z = 0; z < zones.length; z++) {
-          // logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
-          let address = zones[z].coordinator.uuid.toString().substring(12, 19).toLowerCase();
-          let members = zones[z].members.length;
-          let node;
-
-          try {
-            node = this.polyInterface.getNode(address);
-          } catch (error) {
-            logger.info(error);
+        if (zones.length != 0) {
+          for (let z = 0; z < zones.length; z++) {
+            // logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
+            let address = zones[z].coordinator.uuid.toString().substring(12, 19).toLowerCase();
+            let members = zones[z].members.length;
+            let node;
+  
+            try {
+              node = this.polyInterface.getNode(address);
+            } catch (error) {
+              logger.info(error);
+            }
+  
+            if (node) {
+              node.setDriver('GV9', members, true, true);
+              if (members > 1) {
+                node.setDriver('GV10', 1, true, true);
+              } else {
+                node.setDriver('GV10', 0, true, true);
+              }  
+            }
           }
-
-          if (node) {
-            node.setDriver('GV9', members, true, true);
-            if (members > 1) {
-              node.setDriver('GV10', 1, true, true);
-            } else {
-              node.setDriver('GV10', 0, true, true);
-            }  
-          }
+          this.updateZones();
         }
-        this.updateZones();
       }
     }
 
