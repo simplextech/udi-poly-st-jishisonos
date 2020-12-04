@@ -95,7 +95,8 @@ module.exports = function(Polyglot) {
       this.updateSay();
       await this.sleep(1000);
       this.updateClips();
-      // await this.sleep(1000);
+      await this.sleep(1000);
+      this.updateZones();
 
     }
 
@@ -221,6 +222,7 @@ module.exports = function(Polyglot) {
             }  
           }
         }
+        this.updateZones();
       }
     }
 

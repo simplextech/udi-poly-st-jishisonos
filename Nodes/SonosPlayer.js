@@ -1,5 +1,6 @@
 'use strict';
 
+const { Console } = require('console');
 const fs = require('fs');
 
 // This is an example NodeServer Node definition.
@@ -47,9 +48,11 @@ module.exports = function(Polyglot) {
         PLAYLIST: this.playerPlaylist,
         FAVORITE: this.playerFavorite,
         SAY: this.playerSay,
-        SAYALL: this.playerSayAll,
+        // SAYALL: this.playerSayAll,
         CLIP: this.playerClip,
-        CLIPALL: this.playerClipAll,
+        // CLIPALL: this.playerClipAll,
+        JOIN: this.playerJoin,
+        LEAVE: this.playerLeave,
         PLAY: this.playerPlay,
         PAUSE: this.playerPause,
         NEXT: this.playerNext,
@@ -226,6 +229,53 @@ module.exports = function(Polyglot) {
       logger.info('Clip All API Return: %s', call);
     }
 
+    async playerJoin(message) {
+      // let zones = await this.JishiAPI.zones();
+      // let zoneData = [];
+
+      // for (let z = 0; z < zones.length; z++) {
+      //   // logger.info('ZONE-' + z + ' = ' + zones[z].coordinator.roomName);
+      //   let zone = zones[z].coordinator.roomName;
+      //   zoneData.push(zone);
+      // }
+
+      // logger.info('Join Zone: ' + message.value);
+      // logger.info('Zone Text: ' + zoneData[message.value]);
+
+      // let data = await this.JishiAPI.playerJoin(this.name, zoneData[message.value]);
+
+      const nlsFile = 'profile/nls/en_US.txt';
+      let zoneData = [];
+
+      try {
+        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const lines = data.split(/\r?\n/);
+        let re = /ZONE-.*/;
+
+        lines.forEach((line => {
+          if (re.test(line)) {
+            zoneData.push(line.split('=')[1].trim());
+          }
+        }));
+
+      } catch (error) {
+        logger.error(error);
+      }
+
+      logger.info('Zone Data: ' + zoneData);
+      for (const z in zoneData) {
+        logger.info(zoneData[z]);
+      };
+
+      logger.info('Join Zone: ' + message.value);
+      logger.info('Zone Text: ' + zoneData[message.value]);
+      await this.JishiAPI.playerJoin(this.name, zoneData[message.value]);
+
+    }
+
+    async playerLeave() {
+      await this.JishiAPI.playerLeave(this.name);
+    }
 
 
   };
