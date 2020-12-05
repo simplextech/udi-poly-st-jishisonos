@@ -78,7 +78,7 @@ module.exports = function(Polyglot) {
     async sonosUpdate(type, data) {
       logger.info('Update Received: ' + type);
 
-      if (type == 'volume-change') {
+      if (type === 'volume-change') {
         // logger.info('Volume Change: %j', data);
         logger.info('UUID: %s - Room: %s - New Volume: %s', data.uuid, data.roomName, data.newVolume);
 
@@ -97,7 +97,7 @@ module.exports = function(Polyglot) {
         }
       }
 
-      if (type == 'transport-state') {
+      if (type === 'transport-state') {
         // logger.info('Transport State: %j', data);
         logger.info('UUID: %s - Room: %s - %s', data.uuid, data.roomName, data.state.playbackState);
       
@@ -171,11 +171,11 @@ module.exports = function(Polyglot) {
         }
       }
 
-      if (type == 'topology-change') {
+      if (type === 'topology-change') {
         // logger.info('Topology Change: %j', data);
         let zones = await this.JishiAPI.zones();
 
-        if (zones.length != 0) {
+        if (zones.length !== 0) {
           for (let z = 0; z < zones.length; z++) {
             // logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
             let address = zones[z].coordinator.uuid.toString().substring(12, 19).toLowerCase();
@@ -207,10 +207,10 @@ module.exports = function(Polyglot) {
       logger.info('Discovering');
       let zones = await this.JishiAPI.zones();
       
-      for (var z = 0; z < zones.length; z++) {
+      for (let z = 0; z < zones.length; z++) {
         logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
 
-        for (var m = 0; m < zones[z].members.length; m++) {
+        for (let m = 0; m < zones[z].members.length; m++) {
           logger.info('Members UUID: %s, - Room: %s', zones[z].members[m].uuid, zones[z].members[m].roomName);
           let address = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
           let name = zones[z].members[m].roomName;
@@ -219,7 +219,7 @@ module.exports = function(Polyglot) {
             const result = await this.polyInterface.addNode(
             new SonosPlayer(this.polyInterface, this.address, address, name)
             );
-            this.JishiAPI.sleep(1000);
+            await this.JishiAPI.sleep(1000);
             // logger.info('Add node worked: %s', result);
           } catch (err) {
             logger.errorStack(err, 'Add node failed:');
@@ -234,7 +234,7 @@ module.exports = function(Polyglot) {
       const nlsFile = 'profile/nls/en_US.txt';
       let cleanData = [];
 
-      if (zones.length != 0) {
+      if (zones.length !== 0) {
         try {
           const data = fs.readFileSync(nlsFile, 'utf-8');
           const lines = data.split(/\r?\n/);
@@ -271,7 +271,7 @@ module.exports = function(Polyglot) {
       const nlsFile = 'profile/nls/en_US.txt';
       let cleanData = [];
 
-      if (playlists.length != 0) {
+      if (playlists.length !== 0) {
         try {
           const data = fs.readFileSync(nlsFile, 'utf-8');
           const lines = data.split(/\r?\n/);
@@ -308,7 +308,7 @@ module.exports = function(Polyglot) {
       const nlsFile = 'profile/nls/en_US.txt';
       let cleanData = [];
 
-      if (favorites.length != 0) {
+      if (favorites.length !== 0) {
         try {
           const data = fs.readFileSync(nlsFile, 'utf-8');
           const lines = data.split(/\r?\n/);
@@ -346,7 +346,7 @@ module.exports = function(Polyglot) {
       let clips = [];
       let cleanData = [];
 
-      if (clips.length != 0) {
+      if (clips.length !== 0) {
         try {
           fs.readdirSync(clipsDir).forEach(file => {
             logger.info(file);
@@ -436,7 +436,7 @@ module.exports = function(Polyglot) {
       let sayParams = this.polyInterface.getCustomParams();
       for (let s in sayParams) {
         let pos = s.split(' ')[1];
-        if (pos == message.value) {
+        if (pos === message.value) {
           // logger.info('Player Say: ' + sayParams[s]);
           let call = await this.JishiAPI.playerSayAll(sayParams[s]);
           logger.info('SayAll return: %s', call);
