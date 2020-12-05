@@ -64,15 +64,15 @@ module.exports = function(Polyglot) {
 
     async Init() {
       await this.sleep(5000);
-      this.updateFavorites();
+      await this.updateFavorites();
       await this.sleep(2000);
-      this.updatePlaylists();
+      await this.updatePlaylists();
       await this.sleep(2000);
-      this.updateSay();
+      await this.updateSay();
       await this.sleep(2000);
-      this.updateClips();
+      await this.updateClips();
       await this.sleep(2000);
-      this.updateZones();
+      await this.updateZones();
     }
 
     async sonosUpdate(type, data) {
