@@ -1,41 +1,20 @@
 'use strict';
 
-const { Console } = require('console');
 const fs = require('fs');
 
-// This is an example NodeServer Node definition.
-// You need one per nodedefs.
-
-// nodeDefId must match the nodedef id in your nodedef
 const nodeDefId = 'SONOS_PLAYER';
 
 module.exports = function(Polyglot) {
-// Utility function provided to facilitate logging.
   const logger = Polyglot.logger;
 
-  // This is your custom Node class
   class SonosPlayer extends Polyglot.Node {
-
-    // polyInterface: handle to the interface
-    // address: Your node address, withouth the leading 'n999_'
-    // primary: Same as address, if the node is a primary node
-    // name: Your node name
     constructor(polyInterface, primary, address, name) {
       super(nodeDefId, polyInterface, primary, address, name);
 
       this.JishiAPI = require('../lib/JishiAPI.js')(Polyglot, polyInterface);
+      this.nlsFile = 'profile/nls/en_US.txt';
 
-      // PGC supports setting the node hint when creating a node
-      // REF: https://github.com/UniversalDevicesInc/hints
-      // Must be a string in this format
-      // If you don't care about the hint, just comment the line.
-      // this.hint = '0x01020900'; // Example for a Dimmer switch
-
-      // Commands that this node can handle.
-      // Should match the 'accepts' section of the nodedef.
       this.commands = {
-        // DON: this.onDON,
-        // DOF: this.onDOF,
         SVOL: this.playerVolume,
         GSVOL: this.groupVolume,
         PMUTE: this.playerMute,
@@ -48,9 +27,7 @@ module.exports = function(Polyglot) {
         PLAYLIST: this.playerPlaylist,
         FAVORITE: this.playerFavorite,
         SAY: this.playerSay,
-        // SAYALL: this.playerSayAll,
         CLIP: this.playerClip,
-        // CLIPALL: this.playerClipAll,
         JOIN: this.playerJoin,
         LEAVE: this.playerLeave,
         PLAY: this.playerPlay,
@@ -62,8 +39,6 @@ module.exports = function(Polyglot) {
         QUERY: this.query,
       };
 
-      // Status that this node has.
-      // Should match the 'sts' section of the nodedef.
       this.drivers = {
         ST: {value: '0', uom: 25},
         GV0: {value: '0', uom: 51}, // Player Volume
@@ -97,7 +72,7 @@ module.exports = function(Polyglot) {
     }
 
     playerMute(message) {
-      if (message.value == 1) {
+      if (message.value === 1) {
         this.JishiAPI.playerMute(this.name);
         this.setDriver('GV2', 1, true, true);
       } else {
@@ -107,7 +82,7 @@ module.exports = function(Polyglot) {
     }
 
     groupMute(message) {
-      if (message.value == 1) {
+      if (message.value === 1) {
         this.JishiAPI.groupMute(this.name);
         this.setDriver('GV3', 1, true, true);
       } else {
@@ -143,7 +118,7 @@ module.exports = function(Polyglot) {
     }
 
     playerRepeat(message) {
-      if (message.value == 1) {
+      if (message.value === 1) {
         this.JishiAPI.playerRepeat(this.name, 1);
       } else {
         this.JishiAPI.playerRepeat(this.name, 0);
@@ -151,7 +126,7 @@ module.exports = function(Polyglot) {
     }
 
     playerShuffle(message) {
-      if (message.value == 1) {
+      if (message.value === 1) {
         this.JishiAPI.playerShuffle(this.name, 1);
       } else {
         this.JishiAPI.playerShuffle(this.name, 0);
@@ -159,7 +134,7 @@ module.exports = function(Polyglot) {
     }
 
     playerCrossfade(message) {
-      if (message.value == 1) {
+      if (message.value === 1) {
         this.JishiAPI.playerCrossfade(this.name, 1);
       } else {
         this.JishiAPI.playerCrossfade(this.name, 0);
@@ -169,34 +144,23 @@ module.exports = function(Polyglot) {
     async playerFavorite(message) {
       let favorites = await this.JishiAPI.favorites();
       let favorite = favorites[message.value];
-      this.JishiAPI.playerFavorite(this.name, favorite);
+      await this.JishiAPI.playerFavorite(this.name, favorite);
     }
 
     async playerPlaylist(message) {
       let playlists = await this.JishiAPI.playlists();
       let playlist = playlists[message.value];
-      this.JishiAPI.playerPlaylist(this.name, playlist);
+      await this.JishiAPI.playerPlaylist(this.name, playlist);
     }
 
     async playerSay(message) {
       let sayParams = this.polyInterface.getCustomParams();
       for (let s in sayParams) {
         let pos = s.split(' ')[1];
-        if (pos == message.value) {
+        if (pos === message.value) {
           logger.info('Player Say: ' + sayParams[s]);
-          this.JishiAPI.playerSay(this.name, sayParams[s]);
-        }
-      }
-    }
-
-    async playerSayAll(message) {
-      let sayParams = this.polyInterface.getCustomParams();
-      for (let s in sayParams) {
-        let pos = s.split(' ')[1];
-        if (pos == message.value) {
-          logger.info('Player Say: ' + sayParams[s]);
-          let call = await this.JishiAPI.playerSayAll(sayParams[s]);
-          logger.info('SayAll return: %s', call);
+          let call = await this.JishiAPI.playerSay(this.name, sayParams[s]);
+          // logger.debug('playerSay return: %s', call);
         }
       }
     }
@@ -218,30 +182,11 @@ module.exports = function(Polyglot) {
       this.JishiAPI.playerClip(this.name, playClip);
     }
 
-    async playerClipAll(message) {
-      const clipsDir = 'node-sonos-http-api/static/clips';
-      let clips = [];
-
-      try {
-        fs.readdirSync(clipsDir).forEach(file => {
-          logger.info('Clip All file: %s', file);
-          clips.push(file);
-        });
-      } catch (error) {
-        logger.error(error);
-      }
-
-      let playClip = clips[message.value];
-      let call = await this.JishiAPI.playerClipAll(playClip);
-      logger.info('Clip All API Return: %s', call);
-    }
-
-    async playerJoin(message) {
-      const nlsFile = 'profile/nls/en_US.txt';
+    async getZoneData() {
       let zoneData = [];
 
       try {
-        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const data = fs.readFileSync(this.nlsFile, 'utf-8');
         const lines = data.split(/\r?\n/);
         let re = /ZONE-.*/;
 
@@ -254,16 +199,19 @@ module.exports = function(Polyglot) {
       } catch (error) {
         logger.error(error);
       }
+      return zoneData;
+    }
 
+    async playerJoin(message) {
+      let zoneData = await this.getZoneData();
       logger.info('Zone Data: ' + zoneData);
+
       for (const z in zoneData) {
         logger.info(zoneData[z]);
-      };
+      }
 
-      // logger.info('Join Zone: ' + message.value);
       logger.info('Join Zone Text: ' + zoneData[message.value]);
       await this.JishiAPI.playerJoin(this.name, zoneData[message.value]);
-
     }
 
     async playerLeave() {
@@ -271,36 +219,19 @@ module.exports = function(Polyglot) {
     }
 
     async partyMode() {
-      const nlsFile = 'profile/nls/en_US.txt';
-      let zoneData = [];
-
-      try {
-        const data = fs.readFileSync(nlsFile, 'utf-8');
-        const lines = data.split(/\r?\n/);
-        let re = /ZONE-.*/;
-
-        lines.forEach((line => {
-          if (re.test(line)) {
-            zoneData.push(line.split('=')[1].trim());
-          }
-        }));
-
-      } catch (error) {
-        logger.error(error);
-      }
-
+      let zoneData = await this.getZoneData();
       logger.info('Zone Data: ' + zoneData);
+
       for (const z in zoneData) {
-        if (zoneData[z] != this.name) {
+        if (zoneData[z] !== this.name) {
           logger.info(zoneData[z]);
           await this.JishiAPI.playerJoin(zoneData[z], this.name);
-          this.sleep(1000);
-        };
-      };
+          await this.sleep(1000);
+        }
+      }
     }
-  };
+  }
 
-  // Required so that the interface can find this Node class using the nodeDefId
   SonosPlayer.nodeDefId = nodeDefId;
 
   return SonosPlayer;
