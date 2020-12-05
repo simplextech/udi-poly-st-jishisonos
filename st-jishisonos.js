@@ -7,13 +7,10 @@ const AsyncLock = require('async-lock');
 const Polyglot = require('polyinterface');
 
 const cp = require('child_process');
-// const jishiServer = cp.fork('lib/JishiServer.js');
-// const jishiServer = cp.fork('node-sonos-http-api/server.js');
-
 const logger = Polyglot.logger;
 const lock = new AsyncLock({ timeout: 500 });
 
-const jishiServer = cp.spawn('node', ['lib/JishiServer.js'], {
+cp.spawn('node', ['node-sonos-http-api/server.js'], {
   detached: true,
   stdio: 'ignore',
 });
@@ -152,7 +149,7 @@ poly.on('stop', async function() {
 
   try { 
     poly.stop();
-    cp.exec('pkill -f JishiServer', (err, stdout, stderr) => {
+    cp.exec('pkill -f node-sonos-http-api', (err, stdout, stderr) => {
       if (err) {
         logger.info(`exec error: ${err}`);
         return;
