@@ -21,6 +21,7 @@
         <cmd id="RESUMEALL">
             <p id="" editor="TIMEOUT" init="" optional="T" />
         </cmd>
+        <cmd id="UNGROUPALL"/>
         <cmd id="DISCOVER"/>
         <cmd id="UPDATE_FAVORITES"/>
         <cmd id="UPDATE_PLAYLISTS"/>
@@ -104,6 +105,7 @@
             <cmd id="PAUSE"/>
             <cmd id="PREVIOUS"/>
             <cmd id="NEXT"/>
+            <cmd id="PARTY"/>
         </accepts>
     </cmds>
     </nodeDef>
