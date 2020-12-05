@@ -267,8 +267,8 @@ module.exports = function(Polyglot) {
         logger.info(zoneData[z]);
       };
 
-      logger.info('Join Zone: ' + message.value);
-      logger.info('Zone Text: ' + zoneData[message.value]);
+      // logger.info('Join Zone: ' + message.value);
+      logger.info('Join Zone Text: ' + zoneData[message.value]);
       await this.JishiAPI.playerJoin(this.name, zoneData[message.value]);
 
     }
