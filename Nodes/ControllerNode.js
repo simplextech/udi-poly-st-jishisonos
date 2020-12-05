@@ -29,6 +29,7 @@ module.exports = function(Polyglot) {
         CLIPALL: this.playerClipAll,
         PAUSEALL: this.pauseAll,
         RESUMEALL: this.resumeAll,
+        UNGROUPALL: this.unGroupAll,
         QUERY: this.query,
       };
 
@@ -475,6 +476,33 @@ module.exports = function(Polyglot) {
       } else {
         this.JishiAPI.resumeAll();
       } 
+    }
+
+    async unGroupAll() {
+      const nlsFile = 'profile/nls/en_US.txt';
+      let zoneData = [];
+
+      try {
+        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const lines = data.split(/\r?\n/);
+        let re = /ZONE-.*/;
+
+        lines.forEach((line => {
+          if (re.test(line)) {
+            zoneData.push(line.split('=')[1].trim());
+          }
+        }));
+
+      } catch (error) {
+        logger.error(error);
+      }
+
+      logger.info('Zone Data: ' + zoneData);
+      for (const z in zoneData) {
+          logger.info(zoneData[z]);
+          await this.JishiAPI.playerLeave(zoneData[z]);
+          this.sleep(1000);
+      };
     }
     
   };

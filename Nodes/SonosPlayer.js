@@ -57,6 +57,7 @@ module.exports = function(Polyglot) {
         PAUSE: this.playerPause,
         NEXT: this.playerNext,
         PREVIOUS: this.playerPrevious,
+        PARTY: this.partyMode,
         // You can use the query function from the base class directly
         QUERY: this.query,
       };
@@ -78,6 +79,12 @@ module.exports = function(Polyglot) {
         GV10: {value: '0', uom: 2}, // Coordinator
       };
 
+    }
+
+    sleep(ms) {
+      return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+      })
     }
 
     playerVolume(message) {
@@ -263,7 +270,34 @@ module.exports = function(Polyglot) {
       await this.JishiAPI.playerLeave(this.name);
     }
 
+    async partyMode() {
+      const nlsFile = 'profile/nls/en_US.txt';
+      let zoneData = [];
 
+      try {
+        const data = fs.readFileSync(nlsFile, 'utf-8');
+        const lines = data.split(/\r?\n/);
+        let re = /ZONE-.*/;
+
+        lines.forEach((line => {
+          if (re.test(line)) {
+            zoneData.push(line.split('=')[1].trim());
+          }
+        }));
+
+      } catch (error) {
+        logger.error(error);
+      }
+
+      logger.info('Zone Data: ' + zoneData);
+      for (const z in zoneData) {
+        if (zoneData[z] != this.name) {
+          logger.info(zoneData[z]);
+          await this.JishiAPI.playerJoin(zoneData[z], this.name);
+          this.sleep(1000);
+        };
+      };
+    }
   };
 
   // Required so that the interface can find this Node class using the nodeDefId

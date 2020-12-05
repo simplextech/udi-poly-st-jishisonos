@@ -163,8 +163,17 @@ poly.on('stop', async function() {
 poly.on('delete', function() {
   logger.info('Nodeserver is being deleted');
 
-  // We can do some cleanup, then stop.
-  poly.stop();
+  try { 
+    poly.stop();
+    cp.exec('pkill -f node-sonos-http-api', (err, stdout, stderr) => {
+      if (err) {
+        logger.info(`exec error: ${err}`);
+        return;
+      }
+    });
+  } catch (error) {
+    logger.error('poly.delete() Failed: %s', error);
+  }
 });
 
 poly.on('mqttEnd', function() {
