@@ -9,8 +9,7 @@ module.exports = function(Polyglot) {
   const SonosSystem = require('sonos-discovery');
   const settings = require('../node-sonos-http-api/settings');
   const discovery = new SonosSystem(settings);
-  const cp = require('child_process');
-
+  
   const SonosPlayer = require('./SonosPlayer.js')(Polyglot);
 
   class Controller extends Polyglot.Node {
@@ -18,10 +17,7 @@ module.exports = function(Polyglot) {
       super(nodeDefId, polyInterface, primary, address, name);
 
       this.JishiAPI = require('../lib/JishiAPI.js')(Polyglot, polyInterface);
-      this.jishiServer = cp.fork('./lib/JishiServer.js');
 
-      // Commands that this controller node can handle.
-      // Should match the 'accepts' section of the nodedef.
       this.commands = {
         UPDATE_FAVORITES: this.updateFavorites,
         UPDATE_PLAYLISTS: this.updatePlaylists,
@@ -40,16 +36,8 @@ module.exports = function(Polyglot) {
         ST: { value: '1', uom: 2 },
       };
 
-      // this.polyInterface.on('stop', async function() {
-      //   this.jishiServer.send('shutdown');
-      // })
-      // poly.on('stop', async function() {
-
       this.isController = true;
       this.discovery = discovery;
-
-      // const nodes = this.polyInterface.getNodes();
-      // let nodeCount = Object.keys(nodes).length
 
       discovery.on('transport-state', player => {
         this.sonosUpdate('transport-state', player);
@@ -63,9 +51,7 @@ module.exports = function(Polyglot) {
         this.sonosUpdate('volume-change', volumeChange);
       });
 
-
       this.Init();
-
      }
 
 
@@ -86,7 +72,6 @@ module.exports = function(Polyglot) {
       this.updateClips();
       await this.sleep(2000);
       this.updateZones();
-
     }
 
     async sonosUpdate(type, data) {
@@ -188,7 +173,6 @@ module.exports = function(Polyglot) {
       if (type == 'topology-change') {
         // logger.info('Topology Change: %j', data);
         let zones = await this.JishiAPI.zones();
-        // let nodes = this.polyInterface.getNodes();
 
         if (zones.length != 0) {
           for (let z = 0; z < zones.length; z++) {
@@ -217,12 +201,6 @@ module.exports = function(Polyglot) {
       }
     }
 
-    async onCreateNew() {
-      const prefix = 'node';
-      const nodes = this.polyInterface.getNodes();
-
-    }
-
     async onDiscover() {
 
       logger.info('Discovering');
@@ -247,7 +225,6 @@ module.exports = function(Polyglot) {
           }
         }
       }
-      // this.updateZones();
       this.polyInterface.restart();
     }
 
@@ -446,12 +423,10 @@ module.exports = function(Polyglot) {
      
     }
 
-    // Sends the profile files to ISY
     onUpdateProfile() {
       this.polyInterface.updateProfile();
     }
 
-    // Removes notices from the Polyglot UI
     onRemoveNotices() {
       this.polyInterface.removeNoticesAll();
     }
@@ -461,7 +436,7 @@ module.exports = function(Polyglot) {
       for (let s in sayParams) {
         let pos = s.split(' ')[1];
         if (pos == message.value) {
-          logger.info('Player Say: ' + sayParams[s]);
+          // logger.info('Player Say: ' + sayParams[s]);
           let call = await this.JishiAPI.playerSayAll(sayParams[s]);
           logger.info('SayAll return: %s', call);
         }
@@ -504,7 +479,6 @@ module.exports = function(Polyglot) {
     
   };
 
-  // Required so that the interface can find this Node class using the nodeDefId
   Controller.nodeDefId = nodeDefId;
 
   return Controller;
