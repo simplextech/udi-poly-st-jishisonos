@@ -230,20 +230,6 @@ module.exports = function(Polyglot) {
     }
 
     async playerJoin(message) {
-      // let zones = await this.JishiAPI.zones();
-      // let zoneData = [];
-
-      // for (let z = 0; z < zones.length; z++) {
-      //   // logger.info('ZONE-' + z + ' = ' + zones[z].coordinator.roomName);
-      //   let zone = zones[z].coordinator.roomName;
-      //   zoneData.push(zone);
-      // }
-
-      // logger.info('Join Zone: ' + message.value);
-      // logger.info('Zone Text: ' + zoneData[message.value]);
-
-      // let data = await this.JishiAPI.playerJoin(this.name, zoneData[message.value]);
-
       const nlsFile = 'profile/nls/en_US.txt';
       let zoneData = [];
 
