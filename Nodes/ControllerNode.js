@@ -196,7 +196,7 @@ module.exports = function(Polyglot) {
               }  
             }
           }
-          this.updateZones();
+          // this.updateZones();
         }
       }
     }
