@@ -9,7 +9,8 @@ module.exports = function(Polyglot) {
   const SonosSystem = require('sonos-discovery');
   const settings = require('../node-sonos-http-api/settings');
   const discovery = new SonosSystem(settings);
-  const cp = require('child_process');
+  // const cp = require('child_process');
+  // const jishiServer = cp.fork('node-sonos-http-api/server.js');
 
   const SonosPlayer = require('./SonosPlayer.js')(Polyglot);
 
@@ -18,10 +19,8 @@ module.exports = function(Polyglot) {
       super(nodeDefId, polyInterface, primary, address, name);
 
       this.JishiAPI = require('../lib/JishiAPI.js')(Polyglot, polyInterface);
-      this.jishiServer = cp.fork('./lib/JishiServer.js');
+      // this.jishiServer = cp.fork('lib/JishiServer.js');
 
-      // Commands that this controller node can handle.
-      // Should match the 'accepts' section of the nodedef.
       this.commands = {
         UPDATE_FAVORITES: this.updateFavorites,
         UPDATE_PLAYLISTS: this.updatePlaylists,

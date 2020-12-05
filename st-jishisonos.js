@@ -6,8 +6,17 @@ const markdown = require('markdown').markdown;
 const AsyncLock = require('async-lock');
 const Polyglot = require('polyinterface');
 
+const cp = require('child_process');
+// const jishiServer = cp.fork('lib/JishiServer.js');
+// const jishiServer = cp.fork('node-sonos-http-api/server.js');
+
 const logger = Polyglot.logger;
 const lock = new AsyncLock({ timeout: 500 });
+
+const jishiServer = cp.spawn('node', ['lib/JishiServer.js'], {
+  detached: true,
+  stdio: 'ignore',
+});
 
 const ControllerNode = require('./Nodes/ControllerNode.js')(Polyglot);
 const SonosPlayer = require('./Nodes/SonosPlayer.js')(Polyglot);
@@ -143,6 +152,12 @@ poly.on('stop', async function() {
 
   try { 
     poly.stop();
+    cp.exec('pkill -f JishiServer', (err, stdout, stderr) => {
+      if (err) {
+        logger.info(`exec error: ${err}`);
+        return;
+      }
+    });
   } catch (error) {
     logger.error('poly.stop() Failed: %s', error);
   }
