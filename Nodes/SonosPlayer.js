@@ -59,85 +59,94 @@ module.exports = function(Polyglot) {
     sleep(ms) {
       return new Promise((resolve) => {
         setTimeout(resolve, ms);
-      })
+      });
     }
 
     playerVolume(message) {
-      this.JishiAPI.volume(this.name, message.value);
+      this.JishiAPI.volume(this.name, message.value)
+      .then(() => this.setDriver('GV0', message.value, true, true));
     }
-    
+
     groupVolume(message) {
-      this.JishiAPI.groupVolume(this.name, message.value);
-      this.setDriver('GV1', message.value, true, true)
+      this.JishiAPI.groupVolume(this.name, message.value)
+      .then(() => this.setDriver('GV1', message.value, true, true));
     }
 
     playerMute(message) {
       if (message.value === 1) {
-        this.JishiAPI.playerMute(this.name);
-        this.setDriver('GV2', 1, true, true);
+        this.JishiAPI.playerMute(this.name)
+        .then(() => this.setDriver('GV2', 1, true, true));
       } else {
-        this.JishiAPI.playerUnmute(this.name);
-        this.setDriver('GV2', 0, true, true);
+        this.JishiAPI.playerUnmute(this.name)
+        .then(() => this.setDriver('GV2', 0, true, true));
       }
     }
 
     groupMute(message) {
       if (message.value === 1) {
-        this.JishiAPI.groupMute(this.name);
-        this.setDriver('GV3', 1, true, true);
+        this.JishiAPI.groupMute(this.name)
+        .then(() => this.setDriver('GV3', 1, true, true));
       } else {
-        this.JishiAPI.groupUnmute(this.name);
-        this.setDriver('GV3', 0, true, true);
+        this.JishiAPI.groupUnmute(this.name)
+        .then(() => this.setDriver('GV3', 0, true, true));
       }
     }
 
     playerPlay() {
-      this.JishiAPI.play(this.name);
+      this.JishiAPI.play(this.name)
+        .then(() => this.setDriver('ST', 1, true, true));
     }
 
     playerPause() {
-      this.JishiAPI.pause(this.name);
+      this.JishiAPI.pause(this.name)
+        .then(() => this.setDriver('ST', 3, true, true));
     }
 
     playerNext() {
-      this.JishiAPI.next(this.name);
+      this.JishiAPI.next(this.name).then(() => logger.info('Next'));
     }
 
     playerPrevious() {
-      this.JishiAPI.previous(this.name);
+      this.JishiAPI.previous(this.name).then(() => logger.info('Previous'));
     }
 
     playerBass(message) {
-      this.JishiAPI.playerBass(this.name, message.value);
-      this.setDriver('GV7', message.value, true, true);
+      this.JishiAPI.playerBass(this.name, message.value)
+        .then(() => this.setDriver('GV7', message.value, true, true));
     }
 
     playerTreble(message) {
-      this.JishiAPI.playerTreble(this.name, message.value);
-      this.setDriver('GV8', message.value, true, true);
+      this.JishiAPI.playerTreble(this.name, message.value)
+        .then(() => this.setDriver('GV8', message.value, true, true));
     }
 
     playerRepeat(message) {
       if (message.value === 1) {
-        this.JishiAPI.playerRepeat(this.name, 1);
+        this.JishiAPI.playerRepeat(this.name, 1)
+          .then(() => this.setDriver('GV4', 1, true, true));
       } else {
-        this.JishiAPI.playerRepeat(this.name, 0);
+        this.JishiAPI.playerRepeat(this.name, 0)
+          .then(() => this.setDriver('GV4', 0, true, true));
       }
     }
 
     playerShuffle(message) {
       if (message.value === 1) {
-        this.JishiAPI.playerShuffle(this.name, 1);
+        this.JishiAPI.playerShuffle(this.name, 1)
+          .then(() => this.setDriver('GV5', 1, true, true));
       } else {
-        this.JishiAPI.playerShuffle(this.name, 0);
+        this.JishiAPI.playerShuffle(this.name, 0)
+          .then(() => this.setDriver('GV5', 0, true, true));
       }
     }
 
     playerCrossfade(message) {
       if (message.value === 1) {
-        this.JishiAPI.playerCrossfade(this.name, 1);
+        this.JishiAPI.playerCrossfade(this.name, 1)
+          .then(() => this.setDriver('GV6', 1, true, true));
       } else {
-        this.JishiAPI.playerCrossfade(this.name, 0);
+        this.JishiAPI.playerCrossfade(this.name, 0)
+          .then(() => this.setDriver('GV6', 0, true, true));
       }
     }
 
@@ -156,11 +165,12 @@ module.exports = function(Polyglot) {
     async playerSay(message) {
       let sayParams = this.polyInterface.getCustomParams();
       for (let s in sayParams) {
-        let pos = s.split(' ')[1];
-        if (pos === message.value) {
-          logger.info('Player Say: ' + sayParams[s]);
-          let call = await this.JishiAPI.playerSay(this.name, sayParams[s]);
-          // logger.debug('playerSay return: %s', call);
+        if (sayParams.hasOwnProperty(s)) {
+          let pos = s.split(' ')[1];
+          if (pos === message.value) {
+            // logger.info('Player Say: ' + sayParams[s]);
+            await this.JishiAPI.playerSay(this.name, sayParams[s]);
+          }
         }
       }
     }
@@ -179,7 +189,7 @@ module.exports = function(Polyglot) {
       }
 
       let playClip = clips[message.value];
-      this.JishiAPI.playerClip(this.name, playClip);
+      await this.JishiAPI.playerClip(this.name, playClip);
     }
 
     async getZoneData() {
@@ -190,11 +200,11 @@ module.exports = function(Polyglot) {
         const lines = data.split(/\r?\n/);
         let re = /ZONE-.*/;
 
-        lines.forEach((line => {
+        lines.forEach(line => {
           if (re.test(line)) {
             zoneData.push(line.split('=')[1].trim());
           }
-        }));
+        });
 
       } catch (error) {
         logger.error(error);
@@ -206,9 +216,9 @@ module.exports = function(Polyglot) {
       let zoneData = await this.getZoneData();
       logger.info('Zone Data: ' + zoneData);
 
-      for (const z in zoneData) {
-        logger.info(zoneData[z]);
-      }
+      // for (const z in zoneData) {
+      //   logger.info(zoneData[z]);
+      // }
 
       logger.info('Join Zone Text: ' + zoneData[message.value]);
       await this.JishiAPI.playerJoin(this.name, zoneData[message.value]);
@@ -223,10 +233,12 @@ module.exports = function(Polyglot) {
       logger.info('Zone Data: ' + zoneData);
 
       for (const z in zoneData) {
-        if (zoneData[z] !== this.name) {
-          logger.info(zoneData[z]);
-          await this.JishiAPI.playerJoin(zoneData[z], this.name);
-          await this.sleep(1000);
+        if (zoneData.hasOwnProperty(z)) {
+          if (zoneData[z] !== this.name) {
+            logger.info(zoneData[z]);
+            await this.JishiAPI.playerJoin(zoneData[z], this.name);
+            await this.sleep(1000);
+          }
         }
       }
     }
