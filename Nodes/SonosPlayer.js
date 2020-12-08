@@ -94,12 +94,12 @@ module.exports = function(Polyglot) {
 
     playerPlay() {
       this.JishiAPI.play(this.name)
-        .then(() => this.setDriver('ST', 1, true, true));
+      .then(() => this.setDriver('ST', 1, true, true));
     }
 
     playerPause() {
       this.JishiAPI.pause(this.name)
-        .then(() => this.setDriver('ST', 3, true, true));
+      .then(() => this.setDriver('ST', 3, true, true));
     }
 
     playerNext() {
@@ -112,41 +112,41 @@ module.exports = function(Polyglot) {
 
     playerBass(message) {
       this.JishiAPI.playerBass(this.name, message.value)
-        .then(() => this.setDriver('GV7', message.value, true, true));
+      .then(() => this.setDriver('GV7', message.value, true, true));
     }
 
     playerTreble(message) {
       this.JishiAPI.playerTreble(this.name, message.value)
-        .then(() => this.setDriver('GV8', message.value, true, true));
+      .then(() => this.setDriver('GV8', message.value, true, true));
     }
 
     playerRepeat(message) {
       if (message.value === 1) {
         this.JishiAPI.playerRepeat(this.name, 1)
-          .then(() => this.setDriver('GV4', 1, true, true));
+        .then(() => this.setDriver('GV4', 1, true, true));
       } else {
         this.JishiAPI.playerRepeat(this.name, 0)
-          .then(() => this.setDriver('GV4', 0, true, true));
+        .then(() => this.setDriver('GV4', 0, true, true));
       }
     }
 
     playerShuffle(message) {
       if (message.value === 1) {
         this.JishiAPI.playerShuffle(this.name, 1)
-          .then(() => this.setDriver('GV5', 1, true, true));
+        .then(() => this.setDriver('GV5', 1, true, true));
       } else {
         this.JishiAPI.playerShuffle(this.name, 0)
-          .then(() => this.setDriver('GV5', 0, true, true));
+        .then(() => this.setDriver('GV5', 0, true, true));
       }
     }
 
     playerCrossfade(message) {
       if (message.value === 1) {
         this.JishiAPI.playerCrossfade(this.name, 1)
-          .then(() => this.setDriver('GV6', 1, true, true));
+        .then(() => this.setDriver('GV6', 1, true, true));
       } else {
         this.JishiAPI.playerCrossfade(this.name, 0)
-          .then(() => this.setDriver('GV6', 0, true, true));
+        .then(() => this.setDriver('GV6', 0, true, true));
       }
     }
 
