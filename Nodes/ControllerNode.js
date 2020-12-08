@@ -176,28 +176,42 @@ module.exports = function(Polyglot) {
         let zones = await this.JishiAPI.zones();
 
         if (zones.length !== 0) {
-          for (let z = 0; z < zones.length; z++) {
-            // logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
-            let address = zones[z].coordinator.uuid.toString().substring(12, 19).toLowerCase();
-            let members = zones[z].members.length;
-            let node;
-  
-            try {
-              node = this.polyInterface.getNode(address);
-            } catch (error) {
-              logger.info(error);
-            }
-  
-            if (node) {
-              node.setDriver('GV9', members, true, true);
-              if (members > 1) {
-                node.setDriver('GV10', 1, true, true);
-              } else {
-                node.setDriver('GV10', 0, true, true);
-              }  
+          for (let z = 0; z < zones.length; z++) {            
+            for (let m = 0; m < zones[z].members.length; m++) {
+              let player = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
+              let coordinator = zones[z].members[m].coordinator.toString().substring(12, 19).toLowerCase();
+
+              try {
+                let node = this.polyInterface.getNode(player);
+                if (player === coordinator) {
+                  node.setDriver('GV10', 1, true, true);
+                } else { 
+                  node.setDriver('GV10', 0, true, true);
+                }
+              } catch (error) {
+                logger.info(error);
+              }
             }
           }
-          // this.updateZones();
+
+          let allNodes = this.polyInterface.getNodes();
+          for (let n of Object.keys(allNodes)) {
+            let node = this.polyInterface.getNode(n);
+            for (let z = 0; z < zones.length; z++) {
+              let membersCount = zones[z].members.length;
+              for (let m = 0; m < zones[z].members.length; m++) {
+                let player = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
+                let coordinator = zones[z].members[m].coordinator.toString().substring(12, 19).toLowerCase();
+                if (player === n) {
+                  if (player === coordinator) {
+                    node.setDriver('GV9', membersCount, true, true);
+                  } else {
+                    node.setDriver('GV9', 0, true, true);
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
