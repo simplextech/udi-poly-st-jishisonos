@@ -214,13 +214,8 @@ module.exports = function(Polyglot) {
 
     async playerJoin(message) {
       let zoneData = await this.getZoneData();
-      logger.info('Zone Data: ' + zoneData);
-
-      // for (const z in zoneData) {
-      //   logger.info(zoneData[z]);
-      // }
-
-      logger.info('Join Zone Text: ' + zoneData[message.value]);
+      // logger.info('Zone Data: ' + zoneData);
+      // logger.info('Join Zone Text: ' + zoneData[message.value]);
       await this.JishiAPI.playerJoin(this.name, zoneData[message.value]);
     }
 
