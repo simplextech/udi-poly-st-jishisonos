@@ -176,48 +176,53 @@ module.exports = function(Polyglot) {
 
       if (type === 'topology-change') {
         // logger.info('Topology Change: %j', data);
-        let zones = await this.JishiAPI.zones();
+        let zones = [];
+        zones = await this.JishiAPI.zones();
 
-        if (zones.length !== 0) {
-          for (let z = 0; z < zones.length; z++) {
-            for (let m = 0; m < zones[z].members.length; m++) {
-              // eslint-disable-next-line max-len
-              let player = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
-              // eslint-disable-next-line max-len
-              let coordinator = zones[z].members[m].coordinator.toString().substring(12, 19).toLowerCase();
+        if (zones) {
+          if (zones.length !== 0) {
+            for (let z = 0; z < zones.length; z++) {
+              for (let m = 0; m < zones[z].members.length; m++) {
+                // eslint-disable-next-line max-len
+                let player = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
+                // eslint-disable-next-line max-len
+                let coordinator = zones[z].members[m].coordinator.toString().substring(12, 19).toLowerCase();
 
-              try {
-                let node = this.polyInterface.getNode(player);
-                if (player === coordinator) {
-                  node.setDriver('GV10', 1, true, true);
-                } else {
-                  node.setDriver('GV10', 0, true, true);
+                try {
+                  let node = this.polyInterface.getNode(player);
+                  if (player === coordinator) {
+                    node.setDriver('GV10', 1, true, true);
+                  } else {
+                    node.setDriver('GV10', 0, true, true);
+                  }
+                } catch (error) {
+                  logger.info(error);
                 }
-              } catch (error) {
-                logger.info(error);
               }
             }
-          }
 
-          let allNodes = this.polyInterface.getNodes();
-          for (let n of Object.keys(allNodes)) {
-            let node = this.polyInterface.getNode(n);
-            for (let z = 0; z < zones.length; z++) {
-              let membersCount = zones[z].members.length;
-              for (let m = 0; m < zones[z].members.length; m++) {
-                let player = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
-                let coordinator = zones[z].members[m].coordinator.toString().substring(12, 19).toLowerCase();
-                if (player === n) {
-                  if (player === coordinator) {
-                    node.setDriver('GV9', membersCount, true, true);
-                  } else {
-                    node.setDriver('GV9', 0, true, true);
+            let allNodes = this.polyInterface.getNodes();
+            for (let n of Object.keys(allNodes)) {
+              let node = this.polyInterface.getNode(n);
+              for (let z = 0; z < zones.length; z++) {
+                let membersCount = zones[z].members.length;
+                for (let m = 0; m < zones[z].members.length; m++) {
+                  let player = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
+                  let coordinator = zones[z].members[m].coordinator.toString().substring(12, 19).toLowerCase();
+                  if (player === n) {
+                    if (player === coordinator) {
+                      node.setDriver('GV9', membersCount, true, true);
+                    } else {
+                      node.setDriver('GV9', 0, true, true);
+                    }
                   }
                 }
               }
             }
           }
         }
+
+
       }
     }
 
