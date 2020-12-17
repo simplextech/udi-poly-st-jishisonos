@@ -73,6 +73,7 @@ module.exports = function(Polyglot) {
     }
 
     playerMute(message) {
+      // eslint-disable-next-line eqeqeq
       if (message.value == 1) {
         this.JishiAPI.playerMute(this.name)
         .then(() => this.setDriver('GV2', 1, true, true));
@@ -83,6 +84,7 @@ module.exports = function(Polyglot) {
     }
 
     groupMute(message) {
+      // eslint-disable-next-line eqeqeq
       if (message.value == 1) {
         this.JishiAPI.groupMute(this.name)
         .then(() => this.setDriver('GV3', 1, true, true));
@@ -121,6 +123,7 @@ module.exports = function(Polyglot) {
     }
 
     playerRepeat(message) {
+      // eslint-disable-next-line eqeqeq
       if (message.value == 1) {
         this.JishiAPI.playerRepeat(this.name, 1)
         .then(() => this.setDriver('GV4', 1, true, true));
@@ -131,6 +134,7 @@ module.exports = function(Polyglot) {
     }
 
     playerShuffle(message) {
+      // eslint-disable-next-line eqeqeq
       if (message.value == 1) {
         this.JishiAPI.playerShuffle(this.name, 1)
         .then(() => this.setDriver('GV5', 1, true, true));
@@ -141,6 +145,7 @@ module.exports = function(Polyglot) {
     }
 
     playerCrossfade(message) {
+      // eslint-disable-next-line eqeqeq
       if (message.value == 1) {
         this.JishiAPI.playerCrossfade(this.name, 1)
         .then(() => this.setDriver('GV6', 1, true, true));
