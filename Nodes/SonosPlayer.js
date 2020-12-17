@@ -121,7 +121,7 @@ module.exports = function(Polyglot) {
     }
 
     playerRepeat(message) {
-      if (message.value === 1) {
+      if (message.value == 1) {
         this.JishiAPI.playerRepeat(this.name, 1)
         .then(() => this.setDriver('GV4', 1, true, true));
       } else {
@@ -131,7 +131,7 @@ module.exports = function(Polyglot) {
     }
 
     playerShuffle(message) {
-      if (message.value === 1) {
+      if (message.value == 1) {
         this.JishiAPI.playerShuffle(this.name, 1)
         .then(() => this.setDriver('GV5', 1, true, true));
       } else {
@@ -141,7 +141,7 @@ module.exports = function(Polyglot) {
     }
 
     playerCrossfade(message) {
-      if (message.value === 1) {
+      if (message.value == 1) {
         this.JishiAPI.playerCrossfade(this.name, 1)
         .then(() => this.setDriver('GV6', 1, true, true));
       } else {
