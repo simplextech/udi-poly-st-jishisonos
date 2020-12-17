@@ -73,7 +73,7 @@ module.exports = function(Polyglot) {
     }
 
     playerMute(message) {
-      if (message.value === 1) {
+      if (message.value == 1) {
         this.JishiAPI.playerMute(this.name)
         .then(() => this.setDriver('GV2', 1, true, true));
       } else {
@@ -83,7 +83,7 @@ module.exports = function(Polyglot) {
     }
 
     groupMute(message) {
-      if (message.value === 1) {
+      if (message.value == 1) {
         this.JishiAPI.groupMute(this.name)
         .then(() => this.setDriver('GV3', 1, true, true));
       } else {
