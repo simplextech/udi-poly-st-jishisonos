@@ -179,7 +179,7 @@ module.exports = function(Polyglot) {
         let zones = [];
         zones = await this.JishiAPI.zones();
 
-        if (zones) {
+        if (zones !== undefined) {
           if (zones.length !== 0) {
             for (let z = 0; z < zones.length; z++) {
               for (let m = 0; m < zones[z].members.length; m++) {
@@ -231,26 +231,28 @@ module.exports = function(Polyglot) {
       logger.info('Discovering');
       let zones = await this.JishiAPI.zones();
 
-      for (let z = 0; z < zones.length; z++) {
-        logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
-
-        for (let m = 0; m < zones[z].members.length; m++) {
-          logger.info('Members UUID: %s, - Room: %s', zones[z].members[m].uuid, zones[z].members[m].roomName);
-          let address = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
-          let name = zones[z].members[m].roomName;
-
-          try {
-            const result = await this.polyInterface.addNode(
-            new SonosPlayer(this.polyInterface, this.address, address, name)
-            );
-            await this.JishiAPI.sleep(1000);
-            logger.info('Add node worked: %s', result);
-          } catch (err) {
-            logger.errorStack(err, 'Add node failed:');
+      if (zones !== undefined) {
+        for (let z = 0; z < zones.length; z++) {
+          logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
+  
+          for (let m = 0; m < zones[z].members.length; m++) {
+            logger.info('Members UUID: %s, - Room: %s', zones[z].members[m].uuid, zones[z].members[m].roomName);
+            let address = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
+            let name = zones[z].members[m].roomName;
+  
+            try {
+              const result = await this.polyInterface.addNode(
+              new SonosPlayer(this.polyInterface, this.address, address, name)
+              );
+              await this.JishiAPI.sleep(1000);
+              logger.info('Add node worked: %s', result);
+            } catch (err) {
+              logger.errorStack(err, 'Add node failed:');
+            }
           }
         }
+        this.polyInterface.restart();
       }
-      this.polyInterface.restart();
     }
 
     async updateZones() {
