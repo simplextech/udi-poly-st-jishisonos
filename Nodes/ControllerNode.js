@@ -177,7 +177,11 @@ module.exports = function(Polyglot) {
       if (type === 'topology-change') {
         // logger.info('Topology Change: %j', data);
         let zones = [];
-        zones = await this.JishiAPI.zones();
+        try {
+          zones = await this.JishiAPI.zones();
+        } catch (error) {
+
+        }
 
         if (zones !== undefined) {
           if (zones.length !== 0) {
@@ -229,17 +233,22 @@ module.exports = function(Polyglot) {
     async onDiscover() {
 
       logger.info('Discovering');
-      let zones = await this.JishiAPI.zones();
+      let zones = [];
+      try {
+        zones = await this.JishiAPI.zones();
+      } catch (error) {
+
+      }
 
       if (zones !== undefined) {
         for (let z = 0; z < zones.length; z++) {
           logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
-  
+
           for (let m = 0; m < zones[z].members.length; m++) {
             logger.info('Members UUID: %s, - Room: %s', zones[z].members[m].uuid, zones[z].members[m].roomName);
             let address = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
             let name = zones[z].members[m].roomName;
-  
+
             try {
               const result = await this.polyInterface.addNode(
               new SonosPlayer(this.polyInterface, this.address, address, name)
@@ -256,9 +265,15 @@ module.exports = function(Polyglot) {
     }
 
     async updateZones() {
-      let zones = await this.JishiAPI.zones();
       const nlsFile = 'profile/nls/en_US.txt';
+      let zones = [];
       let cleanData = [];
+
+      try {
+        zones = await this.JishiAPI.zones();
+      } catch (error) {
+
+      }
 
       if (zones.length !== 0) {
         try {
@@ -293,9 +308,15 @@ module.exports = function(Polyglot) {
     }
 
     async updatePlaylists() {
-      let playlists = await this.JishiAPI.playlists();
       const nlsFile = 'profile/nls/en_US.txt';
+      let playlists = [];
       let cleanData = [];
+
+      try {
+        playlists = await this.JishiAPI.playlists();
+      } catch (error) {
+
+      }
 
       if (playlists.length !== 0) {
         try {
@@ -330,9 +351,15 @@ module.exports = function(Polyglot) {
     }
 
     async updateFavorites() {
-      let favorites = await this.JishiAPI.favorites();
+      let favorites = [];
       const nlsFile = 'profile/nls/en_US.txt';
       let cleanData = [];
+
+      try {
+        favorites = await this.JishiAPI.favorites();
+      } catch (error) {
+
+      }
 
       if (favorites.length !== 0) {
         try {

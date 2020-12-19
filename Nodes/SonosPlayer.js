@@ -156,7 +156,12 @@ module.exports = function(Polyglot) {
     }
 
     async playerFavorite(message) {
-      let favorites = await this.JishiAPI.favorites();
+      let favorites;
+      try {
+        favorites = await this.JishiAPI.favorites();
+      } catch (error) {
+        logger.info('playerFavorites: Jishi returned undefined');
+      }
       if (favorites !== undefined) {
         let favorite = favorites[message.value];
         await this.JishiAPI.playerFavorite(this.name, favorite);
@@ -164,7 +169,13 @@ module.exports = function(Polyglot) {
     }
 
     async playerPlaylist(message) {
-      let playlists = await this.JishiAPI.playlists();
+      let playlists;
+      try {
+        playlists = await this.JishiAPI.playlists();
+      } catch (error) {
+        logger.info('playerPlaylist: Jishi returned undefined');
+      }
+      
       if (playlists !== undefined) {
         let playlist = playlists[message.value];
         await this.JishiAPI.playerPlaylist(this.name, playlist);
