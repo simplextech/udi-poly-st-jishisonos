@@ -157,14 +157,18 @@ module.exports = function(Polyglot) {
 
     async playerFavorite(message) {
       let favorites = await this.JishiAPI.favorites();
-      let favorite = favorites[message.value];
-      await this.JishiAPI.playerFavorite(this.name, favorite);
+      if (favorites !== undefined) {
+        let favorite = favorites[message.value];
+        await this.JishiAPI.playerFavorite(this.name, favorite);
+      }
     }
 
     async playerPlaylist(message) {
       let playlists = await this.JishiAPI.playlists();
-      let playlist = playlists[message.value];
-      await this.JishiAPI.playerPlaylist(this.name, playlist);
+      if (playlists !== undefined) {
+        let playlist = playlists[message.value];
+        await this.JishiAPI.playerPlaylist(this.name, playlist);
+      }
     }
 
     async playerSay(message) {
@@ -219,9 +223,11 @@ module.exports = function(Polyglot) {
 
     async playerJoin(message) {
       let zoneData = await this.getZoneData();
-      // logger.info('Zone Data: ' + zoneData);
-      // logger.info('Join Zone Text: ' + zoneData[message.value]);
-      await this.JishiAPI.playerJoin(this.name, zoneData[message.value]);
+      if (zoneData !== undefined) {
+        // logger.info('Zone Data: ' + zoneData);
+        // logger.info('Join Zone Text: ' + zoneData[message.value]);
+        await this.JishiAPI.playerJoin(this.name, zoneData[message.value]);
+      }
     }
 
     async playerLeave() {
@@ -230,14 +236,16 @@ module.exports = function(Polyglot) {
 
     async partyMode() {
       let zoneData = await this.getZoneData();
-      logger.info('Zone Data: ' + zoneData);
+      if (zoneData !== undefined) {
+        logger.info('Zone Data: ' + zoneData);
 
-      for (const z in zoneData) {
-        if (zoneData.hasOwnProperty(z)) {
-          if (zoneData[z] !== this.name) {
-            logger.info(zoneData[z]);
-            await this.JishiAPI.playerJoin(zoneData[z], this.name);
-            await this.sleep(1000);
+        for (const z in zoneData) {
+          if (zoneData.hasOwnProperty(z)) {
+            if (zoneData[z] !== this.name) {
+              logger.info(zoneData[z]);
+              await this.JishiAPI.playerJoin(zoneData[z], this.name);
+              await this.sleep(1000);
+            }
           }
         }
       }
