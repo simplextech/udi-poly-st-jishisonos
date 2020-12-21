@@ -165,7 +165,7 @@ module.exports = function(Polyglot) {
       if (favorites !== undefined) {
         let favorite = favorites[message.value];
         try {
-          await this.JishiAPI.playerFavorite(this.name, favorite);
+          this.JishiAPI.playerFavorite(this.name, favorite);
         } catch (error) {
           logger.info('playerFavorite: Unavailable');
         }
@@ -182,7 +182,11 @@ module.exports = function(Polyglot) {
 
       if (playlists !== undefined) {
         let playlist = playlists[message.value];
-        await this.JishiAPI.playerPlaylist(this.name, playlist);
+        try {
+          this.JishiAPI.playerPlaylist(this.name, playlist);
+        } catch (error) {
+          logger.error('playerPlaylist: Unavailable');
+        }
       }
     }
 
@@ -193,7 +197,7 @@ module.exports = function(Polyglot) {
           let pos = s.split(' ')[1];
           if (pos === message.value) {
             // logger.info('Player Say: ' + sayParams[s]);
-            await this.JishiAPI.playerSay(this.name, sayParams[s]);
+            this.JishiAPI.playerSay(this.name, sayParams[s]);
           }
         }
       }
@@ -213,7 +217,7 @@ module.exports = function(Polyglot) {
       }
 
       let playClip = clips[message.value];
-      await this.JishiAPI.playerClip(this.name, playClip);
+      this.JishiAPI.playerClip(this.name, playClip);
     }
 
     async getZoneData() {
