@@ -14,7 +14,7 @@
     {
       "title": "Converged Jishi Sonos API Into a Polyglot NodeServer",
       "author": "Simplex Technology",
-      "version": "0.1.85",
+      "version": "0.1.86",
       "date": "November 23rd, 2020",
       "source": "https://github.com/UniversalDevicesInc/poly-template-nodejs",
       "license": "MIT"

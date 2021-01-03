@@ -147,11 +147,12 @@ poly.on('stop', async function() {
   await doPoll(false);
   await doPoll(true);
 
-  try { 
+  try {
     poly.stop();
     cp.exec('pkill -f node-sonos-http-api', (err, stdout, stderr) => {
       if (err) {
-        logger.info(`exec error: ${err}`);
+        // logger.info(`exec error: ${err}`);
+        logger.info('Jishi API Not Running');
         return;
       }
     });
@@ -163,11 +164,12 @@ poly.on('stop', async function() {
 poly.on('delete', function() {
   logger.info('Nodeserver is being deleted');
 
-  try { 
+  try {
     poly.stop();
     cp.exec('pkill -f node-sonos-http-api', (err, stdout, stderr) => {
       if (err) {
-        logger.info(`exec error: ${err}`);
+        // logger.info(`exec error: ${err}`);
+        logger.info('JishiAPI Not Running');
         return;
       }
     });
