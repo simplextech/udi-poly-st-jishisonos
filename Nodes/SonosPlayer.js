@@ -162,7 +162,8 @@ module.exports = function(Polyglot) {
       } catch (error) {
         logger.info('playerFavorites: Jishi returned undefined');
       }
-      if (favorites !== undefined) {
+
+      if (favorites.length > 0) {
         let favorite = favorites[message.value];
         try {
           this.JishiAPI.playerFavorite(this.name, favorite);
@@ -180,7 +181,7 @@ module.exports = function(Polyglot) {
         logger.info('playerPlaylist: Jishi returned undefined');
       }
 
-      if (playlists !== undefined) {
+      if (playlists.length > 0) {
         let playlist = playlists[message.value];
         try {
           this.JishiAPI.playerPlaylist(this.name, playlist);
@@ -242,7 +243,7 @@ module.exports = function(Polyglot) {
 
     async playerJoin(message) {
       let zoneData = await this.getZoneData();
-      if (zoneData !== undefined) {
+      if (zoneData.length > 0) {
         // logger.info('Zone Data: ' + zoneData);
         // logger.info('Join Zone Text: ' + zoneData[message.value]);
         await this.JishiAPI.playerJoin(this.name, zoneData[message.value]);
@@ -255,7 +256,7 @@ module.exports = function(Polyglot) {
 
     async partyMode() {
       let zoneData = await this.getZoneData();
-      if (zoneData !== undefined) {
+      if (zoneData.length > 0) {
         logger.info('Zone Data: ' + zoneData);
 
         for (const z in zoneData) {
