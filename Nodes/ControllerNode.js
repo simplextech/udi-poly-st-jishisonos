@@ -183,6 +183,10 @@ module.exports = function(Polyglot) {
 
         }
 
+        logger.debug('============== Debug Zones: ' + zones);
+        logger.info('Topology Change: %j', data);
+        logger.debug('============== End Debug ================');
+
         if (zones.length > 0) {
           for (let z = 0; z < zones.length; z++) {
             for (let m = 0; m < zones[z].members.length; m++) {
@@ -223,8 +227,6 @@ module.exports = function(Polyglot) {
             }
           }
         }
-        // }
-
       }
     }
 
