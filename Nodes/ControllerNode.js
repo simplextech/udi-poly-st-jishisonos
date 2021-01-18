@@ -180,14 +180,14 @@ module.exports = function(Polyglot) {
         try {
           zones = await this.JishiAPI.zones();
         } catch (error) {
-
+          logger.error('topoly-change error with zones: ' + error);
         }
 
         logger.debug('============== Debug Zones: ' + zones);
-        logger.info('Topology Change: %j', data);
+        logger.debug('Topology Change: %j', data);
         logger.debug('============== End Debug ================');
 
-        if (zones.length > 0) {
+        if (zones != null && zones.length > 0) {
           for (let z = 0; z < zones.length; z++) {
             for (let m = 0; m < zones[z].members.length; m++) {
               // eslint-disable-next-line max-len
@@ -237,10 +237,10 @@ module.exports = function(Polyglot) {
       try {
         zones = await this.JishiAPI.zones();
       } catch (error) {
-
+        logger.error('Discovering error with zones: ' + error);
       }
 
-      if (zones.length > 0) {
+      if (zones != null && zones.length > 0) {
         for (let z = 0; z < zones.length; z++) {
           logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
 
@@ -272,7 +272,7 @@ module.exports = function(Polyglot) {
       try {
         zones = await this.JishiAPI.zones();
       } catch (error) {
-
+        logger.error('updateZones error: ' + error);
       }
 
       if (zones.length !== 0) {
