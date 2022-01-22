@@ -79,10 +79,10 @@ module.exports = function(Polyglot) {
     }
 
     async sonosUpdate(type, data) {
-      logger.info('Update Received: ' + type);
+      // logger.info('Update Received: ' + type);
 
       if (type === 'volume-change') {
-        logger.info('Volume Change: %j', data);
+        // logger.info('Volume Change: %j', data);
         logger.info('UUID: %s - Room: %s - New Volume: %s',
           data.uuid, data.roomName, data.newVolume);
 
@@ -102,7 +102,7 @@ module.exports = function(Polyglot) {
       }
 
       if (type === 'transport-state') {
-        logger.info('Transport State: %j', data);
+        // logger.info('Transport State: %j', data);
         logger.info('UUID: %s - Room: %s - %s',
           data.uuid, data.roomName, data.state.playbackState);
 
@@ -189,9 +189,9 @@ module.exports = function(Polyglot) {
           logger.error('topoly-change error with zones: ' + error);
         }
 
-        logger.debug('============== Debug Zones: ' + zones);
-        logger.debug('Topology Change: %j', data);
-        logger.debug('============== End Debug ================');
+        // logger.debug('============== Debug Zones: ' + zones);
+        // logger.debug('Topology Change: %j', data);
+        // logger.debug('============== End Debug ================');
 
         // if (zones != null && zones.length > 0) {
         if (typeof zones !== 'undefined') {
@@ -367,7 +367,6 @@ module.exports = function(Polyglot) {
 
       try {
         favorites = await this.JishiAPI.favorites();
-        // logger.info('---------Favorites: ---------: %s', favorites);
       } catch (error) {
 
       }
