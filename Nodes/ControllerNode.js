@@ -65,6 +65,8 @@ module.exports = function(Polyglot) {
 
     async Init() {
       await this.sleep(5000);
+      await this.onDiscover();
+      await this.sleep(2000);
       await this.updateFavorites();
       await this.sleep(2000);
       await this.updatePlaylists();
@@ -80,7 +82,7 @@ module.exports = function(Polyglot) {
       logger.info('Update Received: ' + type);
 
       if (type === 'volume-change') {
-        // logger.info('Volume Change: %j', data);
+        logger.info('Volume Change: %j', data);
         logger.info('UUID: %s - Room: %s - New Volume: %s',
           data.uuid, data.roomName, data.newVolume);
 
@@ -100,7 +102,7 @@ module.exports = function(Polyglot) {
       }
 
       if (type === 'transport-state') {
-        // logger.info('Transport State: %j', data);
+        logger.info('Transport State: %j', data);
         logger.info('UUID: %s - Room: %s - %s',
           data.uuid, data.roomName, data.state.playbackState);
 
@@ -148,6 +150,9 @@ module.exports = function(Polyglot) {
           setCrossfade = 1;
         }
 
+        logger.info('Player Volume: ' + data.state.volume);
+        let playerVolume = data.state.volume;
+
         logger.info('Group Volume: ' + data.groupState.volume);
         let groupVolume = data.groupState.volume;
 
@@ -163,6 +168,7 @@ module.exports = function(Polyglot) {
 
         if (node) {
           node.setDriver('ST', playbackState, true, true);
+          node.setDriver('GV0', playerVolume, true, true);
           node.setDriver('GV1', groupVolume, true, true);
           node.setDriver('GV2', setMute, true, true);
           node.setDriver('GV3', setGroupMute, true, true);
@@ -187,7 +193,8 @@ module.exports = function(Polyglot) {
         logger.debug('Topology Change: %j', data);
         logger.debug('============== End Debug ================');
 
-        if (zones != null && zones.length > 0) {
+        // if (zones != null && zones.length > 0) {
+        if (typeof zones !== 'undefined') {
           for (let z = 0; z < zones.length; z++) {
             for (let m = 0; m < zones[z].members.length; m++) {
               // eslint-disable-next-line max-len
@@ -240,18 +247,21 @@ module.exports = function(Polyglot) {
         logger.error('Discovering error with zones: ' + error);
       }
 
-      if (zones != null && zones.length > 0) {
+      // if (zones != null && zones.length > 0) {
+      if (typeof zones !== 'undefined') {
         for (let z = 0; z < zones.length; z++) {
-          logger.info('Zone Coordinator: %s - Room %s', zones[z].coordinator.uuid, zones[z].coordinator.roomName);
+          logger.info('Zone Coordinator: %s - Room %s', 
+            zones[z].coordinator.uuid, zones[z].coordinator.roomName);
 
           for (let m = 0; m < zones[z].members.length; m++) {
-            logger.info('Members UUID: %s, - Room: %s', zones[z].members[m].uuid, zones[z].members[m].roomName);
+            logger.info('Members UUID: %s, - Room: %s', 
+              zones[z].members[m].uuid, zones[z].members[m].roomName);
             let address = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
             let name = zones[z].members[m].roomName;
 
             try {
               const result = await this.polyInterface.addNode(
-              new SonosPlayer(this.polyInterface, this.address, address, name)
+                new SonosPlayer(this.polyInterface, this.address, address, name)
               );
               await this.JishiAPI.sleep(1000);
               logger.info('Add node worked: %s', result);
@@ -260,7 +270,7 @@ module.exports = function(Polyglot) {
             }
           }
         }
-        this.polyInterface.restart();
+        // this.polyInterface.restart();
       }
     }
 
@@ -275,7 +285,7 @@ module.exports = function(Polyglot) {
         logger.error('updateZones error: ' + error);
       }
 
-      if (zones.length !== 0) {
+      if (typeof zones !== 'undefined') {
         try {
           const data = fs.readFileSync(nlsFile, 'utf-8');
           const lines = data.split(/\r?\n/);
@@ -318,7 +328,7 @@ module.exports = function(Polyglot) {
 
       }
 
-      if (playlists.length !== 0) {
+      if (typeof playlists !== 'undefined') {
         try {
           const data = fs.readFileSync(nlsFile, 'utf-8');
           const lines = data.split(/\r?\n/);
@@ -357,11 +367,13 @@ module.exports = function(Polyglot) {
 
       try {
         favorites = await this.JishiAPI.favorites();
+        // logger.info('---------Favorites: ---------: %s', favorites);
       } catch (error) {
 
       }
 
-      if (favorites.length !== 0) {
+      // if (favorites.length !== 0) {
+      if (typeof favorites !== 'undefined') {
         try {
           const data = fs.readFileSync(nlsFile, 'utf-8');
           const lines = data.split(/\r?\n/);
