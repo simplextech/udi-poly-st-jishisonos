@@ -198,9 +198,16 @@ module.exports = function(Polyglot) {
           for (let z = 0; z < zones.length; z++) {
             for (let m = 0; m < zones[z].members.length; m++) {
               // eslint-disable-next-line max-len
-              let player = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
-              // eslint-disable-next-line max-len
-              let coordinator = zones[z].members[m].coordinator.toString().substring(12, 19).toLowerCase();
+              let player;
+              let coordinator;
+              try {
+                player = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
+                // eslint-disable-next-line max-len
+                coordinator = zones[z].members[m].coordinator.toString().substring(12, 19).toLowerCase();
+              } catch(error) {
+                logger.error('topology-change Zones: %s', error);
+              }
+
 
               try {
                 let node = this.polyInterface.getNode(player);
@@ -216,22 +223,34 @@ module.exports = function(Polyglot) {
           }
 
           let allNodes = this.polyInterface.getNodes();
-          for (let n of Object.keys(allNodes)) {
-            let node = this.polyInterface.getNode(n);
-            for (let z = 0; z < zones.length; z++) {
-              let membersCount = zones[z].members.length;
-              for (let m = 0; m < zones[z].members.length; m++) {
-                let player = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
-                let coordinator = zones[z].members[m].coordinator.toString().substring(12, 19).toLowerCase();
-                if (player === n) {
-                  if (player === coordinator) {
-                    node.setDriver('GV9', membersCount, true, true);
-                  } else {
-                    node.setDriver('GV9', 0, true, true);
+          if (typeof allNodes !== 'undefined') {
+            for (let n of Object.keys(allNodes)) {
+              let node = this.polyInterface.getNode(n);
+              for (let z = 0; z < zones.length; z++) {
+                if (zones[z].members.length > 0) {
+                  let membersCount = zones[z].members.length;
+                  for (let m = 0; m < zones[z].members.length; m++) {
+                    let player;
+                    let coordinator;
+                    try {
+                      player = zones[z].members[m].uuid.toString().substring(12, 19).toLowerCase();
+                      coordinator = zones[z].members[m].coordinator.toString().substring(12, 19).toLowerCase();
+                      if (player === n) {
+                        if (player === coordinator) {
+                          node.setDriver('GV9', membersCount, true, true);
+                        } else {
+                          node.setDriver('GV9', 0, true, true);
+                        }
+                      }
+                    } catch(error) {
+                      logger.error('topology-change: %s', error);
+                    }
                   }
                 }
               }
             }
+          } else {
+            logger.error('topology-change allNodes Undefined');
           }
         }
       }
@@ -248,7 +267,7 @@ module.exports = function(Polyglot) {
       }
 
       // if (zones != null && zones.length > 0) {
-      if (typeof zones !== 'undefined') {
+      if (typeof zones !== 'undefined' && zones.length > 0) {
         for (let z = 0; z < zones.length; z++) {
           logger.info('Zone Coordinator: %s - Room %s', 
             zones[z].coordinator.uuid, zones[z].coordinator.roomName);
@@ -270,6 +289,8 @@ module.exports = function(Polyglot) {
             }
           }
         }
+      } else {
+        logger.info('No Zones Discovered');
         // this.polyInterface.restart();
       }
     }
